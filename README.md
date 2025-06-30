@@ -33,5 +33,6 @@
 ### <img src="./avators/ecb4d29e7c6a2369283c758cfa06455f.jpg" alt="刘知鉴" width="36"/> 刘知鉴 
 ### <img src="./avators/b33ae6204a321c46d1fa90410873e53b.jpg" alt="胡启金" width="36"/> 胡启金 
 ### <img src="./avators/a4a282bd35a94d6b973a4b284df58504.jpg" alt="李其彪" width="36"/> 李其彪 
-### <img src="./avators/30a805aee10c09a4719406d921d2ed95.jpg" alt="张富豪" width="36"/> 张富豪 
+### <img src="./avators/30a805aee10c09a4719406d921d2ed95.jpg" alt="张富豪" width="36"/> 张富豪
 ### <img src="./avators/38f00941430b334f124d41988a20ffbe.jpg" alt="荣致栋" width="36"/> 荣致栋 
+### <img src="./avators/40542477.pg alt="安学玉" width="36"/> 安学玉 
