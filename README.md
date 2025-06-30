@@ -1,4 +1,3 @@
-
 # Bastion Brotherhood
 ### <img src="./avators/zhu.jpg" alt="朱永博" width="36"/> 朱永博 
 ### <img src="./avators/bc2073e35ac122203d01e82592d21220.jpg" alt="苏树兴" width="36"/> 苏树兴 
