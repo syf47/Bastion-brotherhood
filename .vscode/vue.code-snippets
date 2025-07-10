@@ -1,0 +1,43 @@
+{
+  "import": {
+    "scope": "javascript,typescript",
+    "prefix": "im",
+    "body": ["import { $2 } from '$1';"],
+    "description": "Import a module",
+  },
+  "export-all": {
+    "scope": "javascript,typescript",
+    "prefix": "ex",
+    "body": ["export * from '$1';"],
+    "description": "Export a module",
+  },
+  "export-component": {
+    "scope": "javascript,typescript",
+    "prefix": "exc",
+    "body": ["export { default as $2 } from '$1';"],
+    "description": "Export a component",
+  },
+  "Vue3 SFC": {
+    "prefix": "Vue3 SFC",
+    "body": [
+      "<script setup lang=\"ts\">\n$1\n</script>\n",
+      "<template>",
+      "\t<div>\n\t\n\t</div>",
+      "</template>\n",
+    ],
+    "description": "Vue3 SFC",
+  },
+  "Vue3 Tailwind Component": {
+    "prefix": "Vue3 TWC",
+    "body": [
+      "<script setup lang=\"ts\">",
+      "import { type HTMLAttributes } from 'vue'",
+      "import { cn } from '@/lib/utils'\n",
+      "const props = defineProps<{ class?: HTMLAttributes['class'] }>()",
+      "</script>\n",
+      "<template>",
+      "\t<div :class=\"cn('$1', props.class)\">\n\t\n\t</div>",
+      "</template>\n",
+    ],
+  },
+}
