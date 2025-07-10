@@ -1,0 +1,552 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "用户管理系统 API",
+    "description": "基于Gin框架的用户增删改查系统API文档\n\n## 更新日志\n- v1.2.0: 标准化API响应格式(code/message/data)，添加头像压缩功能，去掉分页限制\n- v1.1.0: 添加生产环境服务器，修复数据库字段问题，使用纯Go SQLite驱动\n- v1.0.0: 初始版本\n\n## 响应格式\n所有API都采用统一的响应格式：\n```json\n{\n  \"code\": 200,\n  \"message\": \"success\",\n  \"data\": {...}\n}\n```\n\n## 头像功能\n- 列表接口返回64x64压缩缩略图，提高加载速度\n- 单个用户接口返回原始高清头像\n- 支持单独获取头像接口",
+    "version": "1.2.0",
+    "contact": {
+      "name": "API Support",
+      "email": "support@example.com"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://49.233.41.155",
+      "description": "生产环境服务器"
+    },
+    {
+      "url": "http://localhost:8080",
+      "description": "本地开发服务器"
+    }
+  ],
+  "paths": {
+    "/api/persons": {
+      "get": {
+        "summary": "获取用户列表",
+        "description": "获取所有用户的列表信息，包含压缩后的头像缩略图",
+        "tags": ["用户管理"],
+        "responses": {
+          "200": {
+            "description": "成功获取用户列表",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "example": 200,
+                      "description": "状态码"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "success",
+                      "description": "响应消息"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/PersonResponse"
+                      }
+                    },
+                    "total": {
+                      "type": "integer",
+                      "example": 40,
+                      "description": "用户总数"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      },
+      "post": {
+        "summary": "创建用户",
+        "description": "创建新用户，支持头像上传",
+        "tags": ["用户管理"],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/PersonRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "用户创建成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "example": 201
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Person created successfully"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Person"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    },
+    "/api/persons/{id}": {
+      "get": {
+        "summary": "获取单个用户",
+        "description": "根据用户ID获取用户详细信息，包含原始高清头像",
+        "tags": ["用户管理"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "用户ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功获取用户信息",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/PersonResponse"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "put": {
+        "summary": "更新用户",
+        "description": "更新用户信息，支持头像更新",
+        "tags": ["用户管理"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "用户ID"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/PersonRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "用户更新成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Person updated successfully"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Person"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      },
+      "delete": {
+        "summary": "删除用户",
+        "description": "根据用户ID删除用户（软删除）",
+        "tags": ["用户管理"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "用户ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "用户删除成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Person deleted successfully"
+                    },
+                    "data": {
+                      "type": "null"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    },
+    "/api/persons/{id}/avatar": {
+      "get": {
+        "summary": "获取用户头像",
+        "description": "单独获取用户头像，返回原始高清头像",
+        "tags": ["用户管理"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "用户ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功获取头像",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "avatar": {
+                          "type": "string",
+                          "description": "Base64编码的头像数据",
+                          "example": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQ..."
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Person": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "用户ID"
+          },
+          "name": {
+            "type": "string",
+            "description": "用户名"
+          },
+          "realname": {
+            "type": "string",
+            "description": "真实姓名"
+          },
+          "phone": {
+            "type": "string",
+            "description": "电话号码"
+          },
+          "wechat": {
+            "type": "string",
+            "description": "微信号"
+          },
+          "position": {
+            "type": "string",
+            "description": "职位"
+          },
+          "email": {
+            "type": "string",
+            "description": "邮箱"
+          },
+          "region": {
+            "type": "string",
+            "description": "地区"
+          },
+          "avatar_blob": {
+            "type": "string",
+            "format": "byte",
+            "description": "头像二进制数据"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "创建时间"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "更新时间"
+          }
+        }
+      },
+      "PersonResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "用户ID",
+            "example": 1
+          },
+          "name": {
+            "type": "string",
+            "description": "用户名",
+            "example": "张三"
+          },
+          "realname": {
+            "type": "string",
+            "description": "真实姓名",
+            "example": "张三"
+          },
+          "avatar": {
+            "type": "string",
+            "description": "Base64编码的头像数据（列表中为64x64压缩图，详情中为原图）",
+            "example": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQ..."
+          },
+          "phone": {
+            "type": "string",
+            "description": "电话号码",
+            "example": "13800138000"
+          },
+          "wechat": {
+            "type": "string",
+            "description": "微信号",
+            "example": "zhangsan_wx"
+          },
+          "position": {
+            "type": "string",
+            "description": "职位",
+            "example": "前端工程师"
+          },
+          "email": {
+            "type": "string",
+            "description": "邮箱",
+            "example": "zhangsan@example.com"
+          },
+          "region": {
+            "type": "string",
+            "description": "地区",
+            "example": "北京"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "创建时间",
+            "example": "2025-07-07T10:00:00Z"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "更新时间",
+            "example": "2025-07-07T10:00:00Z"
+          }
+        }
+      },
+      "PersonRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "用户名"
+          },
+          "realname": {
+            "type": "string",
+            "description": "真实姓名"
+          },
+          "phone": {
+            "type": "string",
+            "description": "电话号码"
+          },
+          "wechat": {
+            "type": "string",
+            "description": "微信号"
+          },
+          "position": {
+            "type": "string",
+            "description": "职位"
+          },
+          "email": {
+            "type": "string",
+            "description": "邮箱"
+          },
+          "region": {
+            "type": "string",
+            "description": "地区"
+          },
+          "avatar": {
+            "type": "string",
+            "format": "binary",
+            "description": "头像文件"
+          }
+        }
+      }
+    },
+    "responses": {
+      "BadRequest": {
+        "description": "请求参数错误",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "example": 400
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Invalid request parameters"
+                },
+                "data": {
+                  "type": "null"
+                }
+              }
+            }
+          }
+        }
+      },
+      "NotFound": {
+        "description": "资源未找到",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "example": 404
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Person not found"
+                },
+                "data": {
+                  "type": "null"
+                }
+              }
+            }
+          }
+        }
+      },
+      "InternalServerError": {
+        "description": "服务器内部错误",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "example": 500
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Internal server error"
+                },
+                "data": {
+                  "type": "null"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "用户管理",
+      "description": "用户增删改查相关接口"
+    }
+  ]
+} 

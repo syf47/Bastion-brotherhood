@@ -1,0 +1,11 @@
+# 排除嵌套的 Git 仓库
+Bastion-brotherhood/
+
+# 常见的忽略文件
+*.log
+*.tmp
+.DS_Store
+node_modules/
+*.db
+gin-web-server
+gin-web-server-optimized 
