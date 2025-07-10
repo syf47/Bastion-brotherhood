@@ -3,11 +3,11 @@ import { type HTMLAttributes } from 'vue'
 import { cn } from '@/lib/utils'
 import { LiquidGlass } from '@/components/ui/liquid-glass'
 import { Input } from '@/components/ui/input'
-import { SearchIcon } from 'lucide-vue-next'
 import { Motion } from 'motion-v'
 import { usePersonnelStore } from '@/store/modules/personnel'
 import { ref } from 'vue'
 import { debounce } from '@/utils/debounce'
+import { ThemeSwitcher } from '@/components/ui/theme-switcher'
 
 const props = defineProps<{ class?: HTMLAttributes['class'] }>()
 
@@ -42,12 +42,7 @@ const handleFilter = debounce((query: string) => {
             v-model:model-value="filter"
             @update:model-value="(value) => handleFilter(value as string)"
           />
-          <button
-            class="bg-background/60 cursor-pointer transition-colors rounded-lg h-9 flex px-4 justify-center items-center border"
-          >
-            <SearchIcon class="size-4 mr-2" />
-            <span class="text-sm">搜索</span>
-          </button>
+          <ThemeSwitcher class="size-4" />
         </div>
       </div>
     </LiquidGlass>
