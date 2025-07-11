@@ -3,7 +3,7 @@ package database
 import (
 	"database/sql"
 	"log"
-	"gin_name_list/models"
+	"bastion-brotherhood/models"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	_ "modernc.org/sqlite"

@@ -10,8 +10,10 @@ import (
 	"strconv"
 	"time"
 
-	"gin_name_list/database"
-	"gin_name_list/models"
+	"bastion-brotherhood/database"
+	"bastion-brotherhood/middleware/minioStore"
+	"bastion-brotherhood/models"
+
 	"github.com/gin-gonic/gin"
 	"github.com/nfnt/resize"
 )
@@ -170,6 +172,7 @@ func CreatePerson(c *gin.Context) {
 	person.UpdatedAt = time.Now()
 
 	// 处理头像上传
+	minioClient := minioStore.GetMinio()
 	file, err := c.FormFile("avatar")
 	if err == nil {
 		// 打开文件
@@ -194,7 +197,17 @@ func CreatePerson(c *gin.Context) {
 			})
 			return
 		}
-
+		avatarUrl, err := minioClient.UploadFile("avatar", file.Filename, person.Name)
+		// 上传头像至minio
+        if err != nil {
+            c.JSON(http.StatusInternalServerError, gin.H{
+                "code":    500,
+                "message": "Failed to upload avatar to MinIO",
+                "data":    nil,
+            })
+            return
+        }
+        person.AvatarURL = avatarUrl // 存储头像URL
 		person.AvatarBlob = avatarData
 	}
 
@@ -214,6 +227,7 @@ func CreatePerson(c *gin.Context) {
 		"data":    person,
 	})
 }
+
 
 // UpdatePerson 更新用户
 func UpdatePerson(c *gin.Context) {

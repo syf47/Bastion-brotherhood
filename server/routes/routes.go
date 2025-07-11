@@ -1,7 +1,7 @@
 package routes
 
 import (
-	"gin_name_list/controllers"
+	"bastion-brotherhood/controllers"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )

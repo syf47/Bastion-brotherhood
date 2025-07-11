@@ -9,6 +9,7 @@ type Person struct {
 	ID         uint           `json:"id" gorm:"primaryKey"`
 	Name       string         `json:"name" gorm:"not null"`
 	RealName   string         `json:"realname" gorm:"column:realname;not null"`
+	AvatarURL  string		 `json:"avatar_url" gorm:"column:avatar_url"` // 存储头像的URL
 	AvatarBlob []byte         `json:"-" gorm:"column:avatar_blob"`
 	Phone      string         `json:"phone"`
 	Wechat     string         `json:"wechat"`
