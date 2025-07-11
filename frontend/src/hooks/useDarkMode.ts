@@ -6,12 +6,8 @@ export type ThemeMode = 'light' | 'dark' | 'auto'
 const { x, y } = useMouse()
 
 const useDarkMode = () => {
-  const mode = useColorMode({
-    attribute: 'class',
-    selector: 'html',
-    initialValue: 'dark',
-  })
-  
+  const mode = useColorMode()
+
   const setMode = (newMode: ThemeMode) => {
     if (!document.startViewTransition) {
       mode.value = newMode

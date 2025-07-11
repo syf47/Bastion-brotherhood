@@ -23,10 +23,11 @@ const handleFilter = debounce((query: string) => {
 <template>
   <Motion
     :class="cn('z-10', props.class)"
-    :initial="{ opacity: 0 }"
-    :animate="{ opacity: 1 }"
+    :initial="{ opacity: 0, y: -100 }"
+    :animate="{ opacity: 1, y: 0 }"
     :transition="{
       type: 'spring',
+      delay: 0.8,
     }"
   >
     <LiquidGlass
