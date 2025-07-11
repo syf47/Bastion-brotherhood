@@ -1,9 +1,10 @@
 package main
 
 import (
-	"bastion-brotherhood/routes"
 	"bastion-brotherhood/config"
+	"bastion-brotherhood/database"
 	"bastion-brotherhood/log"
+	"bastion-brotherhood/routes"
 )
 
 func Init() {
@@ -14,10 +15,12 @@ func Init() {
 	log.Info("log init success...")
 }
 
-
 func main() {
-	// 初始化数据库
+	// 初始化
 	Init()
+
+	// 初始化数据库
+	database.InitDB()
 
 	// 设置路由
 	r := routes.SetupRoutes()
@@ -27,4 +30,4 @@ func main() {
 	if err := r.Run(":7799"); err != nil {
 		log.Fatal("Failed to start server:", err)
 	}
-} 
+}

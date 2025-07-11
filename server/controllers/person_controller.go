@@ -5,12 +5,13 @@ import (
 	"encoding/base64"
 	"image"
 	"image/jpeg"
-	"io"
 	"net/http"
+	"os"
 	"strconv"
 	"time"
 
 	"bastion-brotherhood/database"
+	"bastion-brotherhood/log"
 	"bastion-brotherhood/middleware/minioStore"
 	"bastion-brotherhood/models"
 
@@ -76,13 +77,14 @@ func GetPersons(c *gin.Context) {
 		return
 	}
 
-	// 转换为响应格式，包含压缩后的头像
+	// 转换为响应格式，头像字段优先返回minio预签链接
 	var response []models.PersonResponse
 	for _, person := range persons {
 		personResp := models.PersonResponse{
 			ID:        person.ID,
 			Name:      person.Name,
 			RealName:  person.RealName,
+			AvatarURL: person.AvatarURL,
 			Phone:     person.Phone,
 			Wechat:    person.Wechat,
 			Position:  person.Position,
@@ -93,18 +95,18 @@ func GetPersons(c *gin.Context) {
 		}
 
 		// 如果有头像数据，压缩后返回
-		if len(person.AvatarBlob) > 0 {
-			// 压缩头像为64x64缩略图
-			compressedData, err := compressImage(person.AvatarBlob, 64, 64)
-			if err == nil {
-				personResp.Avatar = "data:image/jpeg;base64," + base64.StdEncoding.EncodeToString(compressedData)
-			} else {
-				// 如果压缩失败，返回原图
-				personResp.Avatar = "data:image/jpeg;base64," + base64.StdEncoding.EncodeToString(person.AvatarBlob)
-			}
-		} else {
-			personResp.Avatar = ""
-		}
+		// if len(person.AvatarBlob) > 0 {
+		// 	// 压缩头像为64x64缩略图
+		// 	compressedData, err := compressImage(person.AvatarBlob, 64, 64)
+		// 	if err == nil {
+		// 		personResp.Avatar = "data:image/jpeg;base64," + base64.StdEncoding.EncodeToString(compressedData)
+		// 	} else {
+		// 		// 如果压缩失败，返回原图
+		// 		personResp.Avatar = "data:image/jpeg;base64," + base64.StdEncoding.EncodeToString(person.AvatarBlob)
+		// 	}
+		// } else {
+		// 	personResp.Avatar = ""
+		// }
 
 		response = append(response, personResp)
 	}
@@ -144,9 +146,12 @@ func GetPerson(c *gin.Context) {
 		UpdatedAt: person.UpdatedAt,
 	}
 
-	// 如果有头像数据，转换为base64
-	if len(person.AvatarBlob) > 0 {
+	if person.AvatarURL != "" {
+		personResp.Avatar = person.AvatarURL
+	} else if len(person.AvatarBlob) > 0 {
 		personResp.Avatar = "data:image/jpeg;base64," + base64.StdEncoding.EncodeToString(person.AvatarBlob)
+	} else {
+		personResp.Avatar = ""
 	}
 
 	c.JSON(http.StatusOK, gin.H{
@@ -171,11 +176,25 @@ func CreatePerson(c *gin.Context) {
 	person.CreatedAt = time.Now()
 	person.UpdatedAt = time.Now()
 
+	// 检查realname是否已存在
+	var existPerson models.Person
+	err := database.DB.Where("realname = ?", person.RealName).First(&existPerson).Error
+	if err == nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    400,
+			"message": "该用户已存在",
+			"data":    nil,
+		})
+		return
+	}
+
 	// 处理头像上传
 	minioClient := minioStore.GetMinio()
 	file, err := c.FormFile("avatar")
-	if err == nil {
-		// 打开文件
+	if err != nil {
+		log.Errorf("get user avatar error, errmsg = %s", err.Error())
+	}
+	if file != nil {
 		src, err := file.Open()
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{
@@ -187,28 +206,32 @@ func CreatePerson(c *gin.Context) {
 		}
 		defer src.Close()
 
-		// 读取文件内容
-		avatarData, err := io.ReadAll(src)
+		// 上传头像至minio
+		avatarUrl, err := minioClient.UploadFile("avatar", src, file.Size, person.Name)
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"code":    400,
-				"message": "Failed to read avatar file",
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"code":    500,
+				"message": err.Error(),
 				"data":    nil,
 			})
 			return
 		}
-		avatarUrl, err := minioClient.UploadFile("avatar", file.Filename, person.Name)
-		// 上传头像至minio
-        if err != nil {
-            c.JSON(http.StatusInternalServerError, gin.H{
-                "code":    500,
-                "message": "Failed to upload avatar to MinIO",
-                "data":    nil,
-            })
-            return
-        }
-        person.AvatarURL = avatarUrl // 存储头像URL
-		person.AvatarBlob = avatarData
+		person.AvatarURL = avatarUrl // 存储头像URL
+	} else {
+		// 设置默认头像 - 从指定文件夹读取默认头像图片
+		defaultAvatarPath := "./assets/default_avatar.png" // 默认头像文件路径
+
+		// 读取默认头像文件
+		defaultAvatarData, err := os.ReadFile(defaultAvatarPath)
+		if err != nil {
+			log.Errorf("读取默认头像文件失败: %v", err)
+		}
+
+		// 设置默认头像数据
+		person.AvatarBlob = defaultAvatarData
+		person.AvatarURL = "" // 默认头像没有URL
+
+		log.Info("使用默认头像")
 	}
 
 	// 保存到数据库
@@ -227,7 +250,6 @@ func CreatePerson(c *gin.Context) {
 		"data":    person,
 	})
 }
-
 
 // UpdatePerson 更新用户
 func UpdatePerson(c *gin.Context) {
@@ -270,8 +292,9 @@ func UpdatePerson(c *gin.Context) {
 	person.UpdatedAt = time.Now()
 
 	// 处理头像上传
+	minioClient := minioStore.GetMinio()
 	file, err := c.FormFile("avatar")
-	if err == nil {
+	if err == nil && file != nil {
 		// 打开文件
 		src, err := file.Open()
 		if err != nil {
@@ -284,18 +307,16 @@ func UpdatePerson(c *gin.Context) {
 		}
 		defer src.Close()
 
-		// 读取文件内容
-		avatarData, err := io.ReadAll(src)
+		avatarUrl, err := minioClient.UploadFile("avatar", src, file.Size, person.Name)
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"code":    400,
-				"message": "Failed to read avatar file",
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"code":    500,
+				"message": err.Error(),
 				"data":    nil,
 			})
 			return
 		}
-
-		person.AvatarBlob = avatarData
+		person.AvatarURL = avatarUrl // 存储头像URL
 	}
 
 	// 保存更新
@@ -352,8 +373,8 @@ func GetPersonAvatar(c *gin.Context) {
 	id := c.Param("id")
 	var person models.Person
 
-	// 只查询头像字段
-	if err := database.DB.Select("avatar_blob").First(&person, id).Error; err != nil {
+	// 查询头像字段和URL
+	if err := database.DB.Select("avatar_blob", "avatar_url").First(&person, id).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{
 			"code":    404,
 			"message": "Person not found",
@@ -362,7 +383,19 @@ func GetPersonAvatar(c *gin.Context) {
 		return
 	}
 
-	// 如果没有头像数据
+	// 优先返回minio的URL
+	if person.AvatarURL != "" {
+		c.JSON(http.StatusOK, gin.H{
+			"code":    200,
+			"message": "success",
+			"data": gin.H{
+				"avatar_url": person.AvatarURL,
+			},
+		})
+		return
+	}
+
+	// 没有URL则返回base64
 	if len(person.AvatarBlob) == 0 {
 		c.JSON(http.StatusNotFound, gin.H{
 			"code":    404,
@@ -372,7 +405,6 @@ func GetPersonAvatar(c *gin.Context) {
 		return
 	}
 
-	// 返回base64编码的头像
 	avatar := "data:image/jpeg;base64," + base64.StdEncoding.EncodeToString(person.AvatarBlob)
 	c.JSON(http.StatusOK, gin.H{
 		"code":    200,
