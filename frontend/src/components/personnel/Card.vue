@@ -30,7 +30,7 @@ const handleModelVisible = () => {
 </script>
 
 <template>
-  <AnimatePresence mode="popLayout" multiple as="div">
+  <AnimatePresence multiple as="div">
     <motion.div
       layout
       :class="
@@ -39,14 +39,6 @@ const handleModelVisible = () => {
           props.class,
         )
       "
-      :initial="{ opacity: 0, y: 50 }"
-      :in-view="{ opacity: 1, y: 0 }"
-      :transition="{
-        type: 'spring',
-        damping: 25,
-        stiffness: 300,
-        duration: 0.5,
-      }"
       :layout-id="`person-card-${person.id}`"
       @click="handleClick"
     >

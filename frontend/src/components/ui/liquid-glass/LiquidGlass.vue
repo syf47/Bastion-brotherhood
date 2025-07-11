@@ -2,6 +2,7 @@
 import { type HTMLAttributes, ref, onMounted, useId, useTemplateRef } from 'vue'
 import { cn } from '@/lib/utils'
 import { useEventListener } from '@vueuse/core'
+import { debounce } from '@/utils/debounce'
 
 interface Props {
   class?: HTMLAttributes['class']
@@ -125,10 +126,9 @@ function updateContainerSize() {
   const rect = containerRef.value.getBoundingClientRect()
   width.value = rect.width
   height.value = rect.height
-  console.log('size', width.value, height.value)
 }
 
-useEventListener('resize', updateContainerSize)
+useEventListener('resize', debounce(updateContainerSize, 200))
 
 onMounted(() => {
   updateShader()

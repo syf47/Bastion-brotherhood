@@ -15,6 +15,10 @@ export const usePersonnelStore = defineStore('personnel', {
     filteredPersons: [] as Person[],
   }),
 
+  getters: {
+    personsCount: (state) => state.persons.length,
+  },
+
   actions: {
     async fetchPersons() {
       try {

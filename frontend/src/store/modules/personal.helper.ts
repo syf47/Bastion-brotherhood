@@ -1,8 +1,6 @@
 import type { Person } from '@type/personnel'
 
 function filterPersons(persons: Person[], query: string) {
-  console.log('query', query)
-
   if (!query) return persons
   return persons.filter((person) => {
     return (
