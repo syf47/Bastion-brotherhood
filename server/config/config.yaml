@@ -1,21 +1,21 @@
 minio:
   host: "49.233.41.155"
   port: "9000"
-  access_key_id: ""
-  secret_access_key: ""
+  access_key_id: "minioadmin"
+  secret_access_key: "minioadmin"
   avatar_buckets: avatar
   avatar_path: ""
 
 log:
   level: "debug"
   file_name: "user.log"
-  log_path: "/"
+  log_path: "./log/logs/"
   max_size: 200
   max_age: 30
   max_backups: 7
 
 mysql:
-  host: "49.233.41.155"
+  host: "127.0.0.1"
   port: "3306"
   database: "bastion_brotherhood"
   username: "root"

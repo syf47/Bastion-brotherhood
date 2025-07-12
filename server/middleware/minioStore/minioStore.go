@@ -1,19 +1,22 @@
 package minioStore
 
 import (
-	"github.com/minio/minio-go/v6"
-	"strings"
-	"sync"
 	"bastion-brotherhood/config"
 	"bastion-brotherhood/log"
-	"bastion-brotherhood/middleware/snowflake"
+	"io"
+	"net/url"
+	"strings"
+	"sync"
+	"time"
+
+	"github.com/minio/minio-go/v6"
 )
 
 type Minio struct {
-	MinioClient  *minio.Client
-	Endpoint     string
-	Port         string
-	AvatarBuckets   string
+	MinioClient   *minio.Client
+	Endpoint      string
+	Port          string
+	AvatarBuckets string
 }
 
 var (
@@ -45,7 +48,7 @@ func initMinio() {
 	// 创建存储桶
 	creatBucket(minioClient, avatarBucket)
 	client = Minio{minioClient, endpoint, port, avatarBucket}
-	return
+
 }
 
 func creatBucket(m *minio.Client, bucket string) {
@@ -75,7 +78,7 @@ func creatBucket(m *minio.Client, bucket string) {
 	log.Infof("create bucket %s success", bucket)
 }
 
-func (m *Minio) UploadFile(filetype, file, userName string) (string, error) {
+func (m *Minio) UploadFile(filetype string, file io.Reader, size int64, userName string) (string, error) {
 	var fileName strings.Builder
 	var contentType, Suffix, bucket string
 	if filetype == "avatar" {
@@ -84,20 +87,36 @@ func (m *Minio) UploadFile(filetype, file, userName string) (string, error) {
 		bucket = m.AvatarBuckets
 	}
 	fileName.WriteString(userName)
-	fileName.WriteString("_")
-	// 生成雪花算法ID
-	snowflakeID := snowflake.GenID()
-	// 写入雪花算法ID
-	fileName.WriteString(snowflakeID)
+	fileName.WriteString("_avatar")
 	fileName.WriteString(Suffix)
-	n, err := m.MinioClient.FPutObject(bucket, fileName.String(), file, minio.PutObjectOptions{
-		ContentType: contentType,
-	})
+	fn := fileName.String()
+
+	n, err := m.MinioClient.PutObject(
+		bucket,
+		fn,
+		file,
+		size,
+		minio.PutObjectOptions{
+			ContentType: contentType,
+		},
+	)
 	if err != nil {
 		log.Errorf("upload file error:%s", err.Error())
 		return "", err
 	}
-	log.Infof("upload file %d byte success,fileName:%s", n, fileName)
-	url := "http://" + m.Endpoint + "/" + bucket + "/" + fileName.String()
-	return url, nil
+	log.Infof("upload file %d byte success,fileName:%s", n, fileName.String())
+
+	// 生成10分钟有效的预签名下载链接
+	reqParams := make(url.Values)
+	presignedURL, err := m.MinioClient.PresignedGetObject(
+		bucket,
+		fn,
+		10*time.Minute,
+		reqParams,
+	)
+	if err != nil {
+		log.Errorf("generate presigned url error:%s", err.Error())
+		return "", err
+	}
+	return presignedURL.String(), nil
 }

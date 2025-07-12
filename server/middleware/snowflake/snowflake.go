@@ -26,7 +26,7 @@ func initSnowflake(startTime string, machineID int) {
 	if err != nil {
 		panic(err)
 	}
-	return
+	
 }
 
 func GenID() string {
