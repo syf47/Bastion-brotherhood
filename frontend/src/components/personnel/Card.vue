@@ -35,11 +35,17 @@ const handleModelVisible = () => {
       layout
       :class="
         cn(
-          'w-full p-6 rounded-2xl border flex flex-col gap-4 cursor-pointer bg-background overflow-hidden',
+          'w-full p-6 rounded-2xl border  flex flex-col gap-4 cursor-pointer bg-background overflow-hidden hover:bg-primary/5 transition-colors',
           props.class,
         )
       "
       :layout-id="`person-card-${person.id}`"
+      :initial="{
+        scale: 1,
+      }"
+      :while-hover="{
+        scale: 1.05,
+      }"
       @click="handleClick"
     >
       <div class="flex items-center justify-between gap-4">
