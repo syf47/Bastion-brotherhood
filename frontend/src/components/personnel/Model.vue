@@ -32,7 +32,7 @@ const bg = computed(() => {
 </script>
 
 <template>
-  <div>
+  <div class="sr-only">
     <Teleport to="body">
       <AnimatePresence>
         <motion.div

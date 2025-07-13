@@ -35,10 +35,10 @@ const handleFilter = debounce((query: string) => {
       class="bg-background/20"
     >
       <div class="flex px-4 justify-between items-center size-full">
-        <h2>欢迎来到不朽堡垒！</h2>
+        <Motion as="h2">欢迎来到不朽堡垒</Motion>
         <div class="flex items-center gap-2">
           <Input
-            class="w-64"
+            class="w-32 md:w-64"
             placeholder="搜索堡垒成员"
             v-model:model-value="filter"
             @update:model-value="(value) => handleFilter(value as string)"
