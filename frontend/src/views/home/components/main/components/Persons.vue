@@ -7,21 +7,26 @@ import type { Person } from '@type/personnel'
 import { Motion, LayoutGroup } from 'motion-v'
 import { calculateDelta } from './utils'
 import { useState } from '@/hooks/useState'
+import { useScreenSize } from '@/hooks/useScreenSize'
 
 const props = defineProps<{ class?: HTMLAttributes['class'] }>()
+
+const { isMobile } = useScreenSize()
 
 const personnelStore = usePersonnelStore()
 
 const [animationCompleted, setAnimationCompleted] = useState(false)
 
-await personnelStore.fetchPersons()
+// await personnelStore.fetchPersons()
 
 const handleSelect = (person: Person) => personnelStore.setActivePerson(person)
 
 const handleClickOutside = () => personnelStore.resetActivePerson()
 
 const getDistance = (index: number) => {
-  const { x, y } = calculateDelta(index, personnelStore.personsCount, 4)
+  const colCount = isMobile.value ? 1 : 4
+
+  const { x, y } = calculateDelta(index, personnelStore.personsCount, colCount)
 
   const distance = Math.sqrt(x ** 2 + y ** 2).toFixed(2)
 
@@ -34,10 +39,6 @@ const getDistance = (index: number) => {
 
 const handleAnimationComplete = () => {
   setAnimationCompleted(true)
-}
-
-const handleAnimationStart = () => {
-  setAnimationCompleted(false)
 }
 </script>
 

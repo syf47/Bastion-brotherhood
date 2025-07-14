@@ -1,29 +1,39 @@
 <script setup lang="ts">
-import { PersonGroupSkeleton } from '@/components/personnel'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Persons, Banner } from './components'
+import { computed, onMounted, ref } from 'vue'
+import { Welcome, Main } from './components'
+import { Motion, AnimatePresence } from 'motion-v'
 import { usePersonnelStore } from '@/store'
-import { computed } from 'vue'
+import { useTimeoutFn } from '@vueuse/core'
 
 const personnelStore = usePersonnelStore()
 
+const isCeremonyEnd = ref(false)
+
 const fulfilled = computed(() => personnelStore.fulfilled)
+
+const { start } = useTimeoutFn(() => {
+  if (!fulfilled.value) return
+  isCeremonyEnd.value = true
+}, 500)
+
+onMounted(() => {
+  personnelStore.fetchPersons().then(() => {
+    start()
+  })
+})
 </script>
 
 <template>
-  <ScrollArea class="size-full">
-    <div
-      class="size-full flex flex-col gap-4 relative w-full md:max-w-7xl mx-auto p-4"
+  <AnimatePresence mode="sync" as="div" class="size-full">
+    <Motion
+      v-if="!isCeremonyEnd"
+      :initial="{ opacity: 0 }"
+      :animate="{ opacity: 1 }"
+      :exit="{ opacity: 0 }"
+      as-child
     >
-      <Banner v-if="fulfilled" class="sticky top-4" />
-      <div class="px-4">
-        <Suspense>
-          <Persons />
-          <template #fallback>
-            <PersonGroupSkeleton />
-          </template>
-        </Suspense>
-      </div>
-    </div>
-  </ScrollArea>
+      <Welcome @animation:end="start" />
+    </Motion>
+    <Main v-else />
+  </AnimatePresence>
 </template>

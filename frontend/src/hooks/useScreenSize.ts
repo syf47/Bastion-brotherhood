@@ -15,7 +15,7 @@ export function useScreenSize() {
     screenSize.value.height = window.innerHeight
   }
 
-  updateScreenSize
+  updateScreenSize()
 
   useEventListener(window, 'resize', updateScreenSize)
 

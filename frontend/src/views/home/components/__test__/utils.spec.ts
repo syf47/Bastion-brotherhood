@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { calculateDelta } from '../utils'
+import { calculateDelta } from '../main/components/utils'
 
 describe('calculateDelta', () => {
   it('should calculate the delta correctly', () => {
