@@ -11,7 +11,7 @@ import { useScreenSize } from '@/hooks/useScreenSize'
 
 const props = defineProps<{ class?: HTMLAttributes['class'] }>()
 
-const { isMobile } = useScreenSize()
+const { isMd, isLg } = useScreenSize()
 
 const personnelStore = usePersonnelStore()
 
@@ -24,7 +24,9 @@ const handleSelect = (person: Person) => personnelStore.setActivePerson(person)
 const handleClickOutside = () => personnelStore.resetActivePerson()
 
 const getDistance = (index: number) => {
-  const colCount = isMobile.value ? 1 : 4
+  const colCount = isLg.value ? 4 : isMd.value ? 3 : 1
+
+  console.log('colCount', colCount)
 
   const { x, y } = calculateDelta(index, personnelStore.personsCount, colCount)
 
@@ -50,7 +52,14 @@ const handleAnimationComplete = () => {
     }"
   >
     <LayoutGroup>
-      <div :class="cn('grid md:grid-cols-4 grid-cols-1 gap-4', props.class)">
+      <div
+        :class="
+          cn(
+            'grid md:grid-cols-3 lg:grid-cols-4 grid-cols-1 gap-4',
+            props.class,
+          )
+        "
+      >
         <Motion
           v-for="(person, index) in personnelStore.filteredPersons"
           :key="person.id"

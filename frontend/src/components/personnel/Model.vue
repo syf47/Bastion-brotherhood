@@ -72,7 +72,7 @@ const bg = computed(() => {
                 <div class="absolute top-4 right-4">
                   <motion.p
                     :layout-id="`person-id-${person.id}`"
-                    class="text-7xl font-bold text-background/40"
+                    class="text-7xl font-bold text-foreground/40"
                   >
                     # {{ person.id }}
                   </motion.p>
