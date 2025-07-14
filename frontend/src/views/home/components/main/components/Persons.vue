@@ -26,8 +26,6 @@ const handleClickOutside = () => personnelStore.resetActivePerson()
 const getDistance = (index: number) => {
   const colCount = isLg.value ? 4 : isMd.value ? 3 : 1
 
-  console.log('colCount', colCount)
-
   const { x, y } = calculateDelta(index, personnelStore.personsCount, colCount)
 
   const distance = Math.sqrt(x ** 2 + y ** 2).toFixed(2)
