@@ -24,7 +24,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <AnimatePresence mode="sync" as="div" class="size-full">
+  <AnimatePresence mode="sync" as="div" class="size-full overflow-hidden">
     <Motion
       v-if="!isCeremonyEnd"
       :initial="{ opacity: 0 }"

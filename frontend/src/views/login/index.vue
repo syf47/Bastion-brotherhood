@@ -6,7 +6,7 @@ import { Motion } from 'motion-v'
 const router = useRouter()
 
 const form = ref({
-  email: 'explorer@galaxy.universe',
+  email: '宇宙探索者',
   password: '',
   rememberMe: false,
 })
@@ -135,7 +135,7 @@ const formTransition = { duration: 0.6, delay: 0.6 }
                 />
                 <polyline points="22,6 12,13 2,6" />
               </svg>
-              宇宙邮箱地址
+              宇宙探索者昵称
             </label>
             <Motion
               :whileFocus="{
