@@ -24,6 +24,9 @@ type Getter<T = any> = () => T
 
 type Setter<T = any> = (value: T) => void
 
+type MakeRequired<T, K extends keyof T> = Required<Pick<T, K>> &
+  Partial<Omit<T, K>>
+
 export type {
   AnyPromiseFunction,
   AnyNormalFunction,
@@ -34,4 +37,5 @@ export type {
   PartiallyOptional,
   Getter,
   Setter,
+  MakeRequired,
 }
