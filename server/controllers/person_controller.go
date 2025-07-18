@@ -5,6 +5,7 @@ import (
 	"encoding/base64"
 	"image"
 	"image/jpeg"
+	"io"
 	"net/http"
 	"os"
 	"strconv"
@@ -258,7 +259,7 @@ func CreatePerson(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusCreated, gin.H{
-		"code":    201,
+		"code":    200,
 		"message": "Person created successfully",
 		"data":    personResp,
 	})
@@ -321,9 +322,20 @@ func UploadPersonAvatar(c *gin.Context) {
 	}
 	defer src.Close()
 
-	// 上传头像至minio
+	// 读取文件内容到内存，以便同时上传到MinIO和存储到数据库
+	fileBytes, err := io.ReadAll(src)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    400,
+			"message": "Failed to read avatar file",
+			"data":    nil,
+		})
+		return
+	}
+
+	// 上传头像至minio（使用bytes.NewReader创建新的reader）
 	minioClient := minioStore.GetMinio()
-	avatarUrl, err := minioClient.UploadFile("avatar", src, file.Size, person.Name)
+	avatarUrl, err := minioClient.UploadFile("avatar", bytes.NewReader(fileBytes), file.Size, person.Name)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"code":    500,
@@ -333,8 +345,9 @@ func UploadPersonAvatar(c *gin.Context) {
 		return
 	}
 
-	// 更新用户头像URL
+	// 更新用户头像URL和头像二进制数据
 	person.AvatarURL = avatarUrl
+	person.AvatarBlob = fileBytes // 同时存储到avatar_blob字段
 	person.UpdatedAt = time.Now()
 
 	if err := database.DB.Save(&person).Error; err != nil {
