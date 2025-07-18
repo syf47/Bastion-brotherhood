@@ -40,7 +40,7 @@ function http<T>({
 
   const failHandler = (error: Response<Error>) => {
     afterRequest?.()
-    throw new Error(error?.message || 'Error')
+    throw new Error(error?.message || '[network]: unknown error')
   }
 
   beforeRequest?.()
