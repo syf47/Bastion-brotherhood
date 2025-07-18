@@ -37,8 +37,8 @@ export const usePersonnelStore = defineStore('personnel', {
     },
 
     async createPerson(data: PersonCreator) {
-      const formData = objectToFormData(data)
-      const person = await insertPerson(formData)
+      // const formData = objectToFormData(data)
+      const person = await insertPerson(data)
       // 添加之后修改现有数据，避免额外请求
       this.persons.push(person)
     },

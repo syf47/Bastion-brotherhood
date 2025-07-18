@@ -47,7 +47,15 @@ const handleSubmit = async () => {
     setVisible(true)
     sideCannons()
     goto(1)
-  } catch (error) {
+  } catch (error: any) {
+    if (error.message === '201') {
+      // 不知道为啥状态码201 axios报错了 走了reject 这里特殊处理一下
+      creatorRef.value.resetForm()
+      setVisible(true)
+      sideCannons()
+      goto(1)
+      return
+    }
     console.error('[Person Creator]: ', error)
   } finally {
     setCreating(false)
