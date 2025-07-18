@@ -50,7 +50,7 @@ service.interceptors.response.use(
       return Promise.reject(error)
     }
     // TODO: a error toast
-    toast.error(error)
+    toast.error(error ?? '未知错误, 请稍后重试')
     return Promise.reject(error)
   },
 )

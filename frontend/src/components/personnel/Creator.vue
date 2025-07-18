@@ -118,12 +118,7 @@ const handleSubmit = async () => {
                     >
                       <ChevronRight class="size-4" />
                     </Button>
-                    <Button
-                      v-else
-                      size="sm"
-                      variant="secondary"
-                      @click="handleSubmit"
-                    >
+                    <Button v-else size="sm" @click="handleSubmit">
                       <LoadingIcon v-if="creating" />
                       <Plus v-else class="size-4" />
                       <span>添加</span>

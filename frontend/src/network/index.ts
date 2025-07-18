@@ -5,7 +5,7 @@ import { toast } from 'vue-sonner'
 export interface Response<T> {
   data: T
   message: string
-  code: 200 | 500
+  code: 200 | 201 | 500
 }
 
 interface HttpOptions extends AxiosRequestConfig {
@@ -30,11 +30,11 @@ function http<T>({
       return res.data as T
     }
     // TODO: handle string and blob
-    if (res.data.code === 200) {
+    if (res.data.code === 200 || res.data.code === 201) {
       return res.data.data
     }
     // TODO: a error toast
-    toast.error(res.data.message)
+    toast.error(res.data.message ?? '未知错误, 请稍后重试')
     return Promise.reject(res.data)
   }
 

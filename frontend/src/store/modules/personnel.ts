@@ -2,7 +2,6 @@ import { defineStore } from 'pinia'
 import type { PersonCreator, Person } from '@type/personnel'
 import { fetchPersons, insertPerson } from '@/api/personnel'
 import { filterPersons } from './personal.helper'
-import { objectToFormData } from '@/utils/form-data'
 
 export const usePersonnelStore = defineStore('personnel', {
   state: () => ({
@@ -37,8 +36,7 @@ export const usePersonnelStore = defineStore('personnel', {
     },
 
     async createPerson(data: PersonCreator) {
-      const formData = objectToFormData(data)
-      const person = await insertPerson(formData)
+      const person = await insertPerson(data)
       // 添加之后修改现有数据，避免额外请求
       this.persons.push(person)
     },
