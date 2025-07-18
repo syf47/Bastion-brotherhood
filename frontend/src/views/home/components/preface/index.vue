@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Spline } from '@/components/ui/_spline'
+import { Spline } from '@/components/ui/spline'
 import { BlurInText } from '@/components/ui/blur-in-text'
 
 const sceneUrl = 'https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode'
