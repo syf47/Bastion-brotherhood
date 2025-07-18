@@ -44,7 +44,7 @@ const handleSubmit = async () => {
   try {
     await personnelStore.createPerson(data)
     creatorRef.value.resetForm()
-    setVisible(true)
+    setVisible(false)
     sideCannons()
     goto(1)
   } catch (error) {
