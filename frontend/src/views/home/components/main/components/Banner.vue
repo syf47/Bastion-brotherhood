@@ -8,6 +8,7 @@ import { usePersonnelStore } from '@/store/modules/personnel'
 import { ref } from 'vue'
 import { debounce } from '@/utils/debounce'
 import { ThemeSwitcher } from '@/components/ui/theme-switcher'
+import { PersonCreator } from '@/components/personnel'
 
 const props = defineProps<{ class?: HTMLAttributes['class'] }>()
 
@@ -43,6 +44,7 @@ const handleFilter = debounce((query: string) => {
             v-model:model-value="filter"
             @update:model-value="(value) => handleFilter(value as string)"
           />
+          <PersonCreator />
           <ThemeSwitcher class="size-4" />
         </div>
       </div>

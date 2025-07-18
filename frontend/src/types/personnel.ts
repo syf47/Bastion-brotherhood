@@ -1,4 +1,6 @@
-interface Person {
+import type { MakeRequired } from '@/utils/types'
+
+interface BasePerson {
   id: number
   name: string
   realname: string
@@ -8,8 +10,13 @@ interface Person {
   position: string
   email: string
   region: string
+}
+
+type PersonCreator = MakeRequired<BasePerson, 'name' | 'realname'>
+
+interface Person extends BasePerson {
   created_at: string
   updated_at: string
 }
 
-export type { Person }
+export type { Person, BasePerson, PersonCreator }

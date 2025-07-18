@@ -1,5 +1,6 @@
 import type { AxiosRequestConfig, AxiosResponse } from 'axios'
 import request from './axios'
+import { toast } from 'vue-sonner'
 
 export interface Response<T> {
   data: T
@@ -33,6 +34,7 @@ function http<T>({
       return res.data.data
     }
     // TODO: a error toast
+    toast.error(res.data.message)
     return Promise.reject(res.data)
   }
 
