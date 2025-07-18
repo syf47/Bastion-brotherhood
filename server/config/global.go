@@ -32,6 +32,12 @@ func inferRootDir() {
 
 		// 查看dir的父目录
 		parent := filepath.Dir(dir)
+		
+		// 防止无限递归：如果到达根目录或者目录没有变化，就返回当前工作目录
+		if parent == dir || parent == "/" {
+			return pwd
+		}
+		
 		return infer(parent)
 	}
 

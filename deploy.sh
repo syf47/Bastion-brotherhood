@@ -91,9 +91,9 @@ ssh ${SERVER_USER}@${SERVER_HOST} "mkdir -p ${SERVER_PATH}/data"
 echo "上传后端文件..."
 scp ${BINARY_NAME} ${SERVER_USER}@${SERVER_HOST}:${SERVER_PATH}/
 
-# 上传前端文件
-echo "上传前端文件..."
-scp -r frontend/dist/* ${SERVER_USER}@${SERVER_HOST}:${FRONTEND_PATH}/
+## 上传前端文件
+#echo "上传前端文件..."
+#scp -r frontend/dist/* ${SERVER_USER}@${SERVER_HOST}:${FRONTEND_PATH}/
 
 # 创建systemd服务文件
 echo "创建systemd服务文件..."
