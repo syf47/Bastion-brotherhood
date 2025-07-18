@@ -34,13 +34,13 @@ function http<T>({
       return res.data.data
     }
     // TODO: a error toast
-    toast.error(res.data.message)
+    toast.error(res.data.message ?? '未知错误, 请稍后重试')
     return Promise.reject(res.data)
   }
 
   const failHandler = (error: Response<Error>) => {
     afterRequest?.()
-    throw new Error(error?.message || 'Error')
+    throw new Error(error?.message || '[network]: unknown error')
   }
 
   beforeRequest?.()

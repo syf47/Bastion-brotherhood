@@ -22,7 +22,7 @@ service.interceptors.request.use(
 
 service.interceptors.response.use(
   (response: AxiosResponse): AxiosResponse => {
-    if (response.status === 200) {
+    if (response.status === 200 || response.status === 201) {
       return response
     }
     if (response.status === 401) {
@@ -50,7 +50,7 @@ service.interceptors.response.use(
       return Promise.reject(error)
     }
     // TODO: a error toast
-    toast.error(error)
+    toast.error(error ?? '未知错误, 请稍后重试')
     return Promise.reject(error)
   },
 )
