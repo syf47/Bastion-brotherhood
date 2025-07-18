@@ -26,8 +26,8 @@ func main() {
 	r := routes.SetupRoutes()
 
 	// 启动服务器
-	log.Info("Server starting on :7799...")
-	if err := r.Run(":7799"); err != nil {
+	log.Info("Server starting on :8080...")
+	if err := r.Run(":8080"); err != nil {
 		log.Fatal("Failed to start server:", err)
 	}
 }
