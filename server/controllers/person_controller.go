@@ -95,19 +95,19 @@ func GetPersons(c *gin.Context) {
 			UpdatedAt: person.UpdatedAt,
 		}
 
-		// 如果有头像数据，压缩后返回
-		// if len(person.AvatarBlob) > 0 {
-		// 	// 压缩头像为64x64缩略图
-		// 	compressedData, err := compressImage(person.AvatarBlob, 64, 64)
-		// 	if err == nil {
-		// 		personResp.Avatar = "data:image/jpeg;base64," + base64.StdEncoding.EncodeToString(compressedData)
-		// 	} else {
-		// 		// 如果压缩失败，返回原图
-		// 		personResp.Avatar = "data:image/jpeg;base64," + base64.StdEncoding.EncodeToString(person.AvatarBlob)
-		// 	}
-		// } else {
-		// 	personResp.Avatar = ""
-		// }
+		//如果有头像数据，压缩后返回
+		if len(person.AvatarBlob) > 0 {
+			// 压缩头像为64x64缩略图
+			compressedData, err := compressImage(person.AvatarBlob, 64, 64)
+			if err == nil {
+				personResp.Avatar = "data:image/jpeg;base64," + base64.StdEncoding.EncodeToString(compressedData)
+			} else {
+				// 如果压缩失败，返回原图
+				personResp.Avatar = "data:image/jpeg;base64," + base64.StdEncoding.EncodeToString(person.AvatarBlob)
+			}
+		} else {
+			personResp.Avatar = ""
+		}
 
 		response = append(response, personResp)
 	}
