@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	"bastion-brotherhood/database"
@@ -161,24 +162,45 @@ func GetPerson(c *gin.Context) {
 	})
 }
 
-// CreatePerson 创建用户
-func CreatePerson(c *gin.Context) {
-	var person models.Person
+// CreatePersonRequest 创建用户请求结构
+type CreatePersonRequest struct {
+	Name     string `json:"name" binding:"required"`
+	RealName string `json:"realname" binding:"required"`
+	Phone    string `json:"phone"`
+	Wechat   string `json:"wechat"`
+	Position string `json:"position"`
+	Email    string `json:"email"`
+	Region   string `json:"region"`
+}
 
-	// 获取表单数据
-	person.Name = c.PostForm("name")
-	person.RealName = c.PostForm("realname")
-	person.Phone = c.PostForm("phone")
-	person.Wechat = c.PostForm("wechat")
-	person.Position = c.PostForm("position")
-	person.Email = c.PostForm("email")
-	person.Region = c.PostForm("region")
-	person.CreatedAt = time.Now()
-	person.UpdatedAt = time.Now()
+// UpdatePersonRequest 更新用户请求结构
+type UpdatePersonRequest struct {
+	Name     string `json:"name"`
+	RealName string `json:"realname"`
+	Phone    string `json:"phone"`
+	Wechat   string `json:"wechat"`
+	Position string `json:"position"`
+	Email    string `json:"email"`
+	Region   string `json:"region"`
+}
+
+// CreatePerson 创建用户（重构版本 - 使用JSON）
+func CreatePerson(c *gin.Context) {
+	var req CreatePersonRequest
+
+	// 绑定JSON数据
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    400,
+			"message": "Invalid request data: " + err.Error(),
+			"data":    nil,
+		})
+		return
+	}
 
 	// 检查realname是否已存在
 	var existPerson models.Person
-	err := database.DB.Where("realname = ?", person.RealName).First(&existPerson).Error
+	err := database.DB.Where("realname = ?", req.RealName).First(&existPerson).Error
 	if err == nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"code":    400,
@@ -188,49 +210,26 @@ func CreatePerson(c *gin.Context) {
 		return
 	}
 
-	// 处理头像上传
-	minioClient := minioStore.GetMinio()
-	file, err := c.FormFile("avatar")
-	if err != nil {
-		log.Errorf("get user avatar error, errmsg = %s", err.Error())
+	// 创建用户对象
+	person := models.Person{
+		Name:      req.Name,
+		RealName:  req.RealName,
+		Phone:     req.Phone,
+		Wechat:    req.Wechat,
+		Position:  req.Position,
+		Email:     req.Email,
+		Region:    req.Region,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
 	}
-	if file != nil {
-		src, err := file.Open()
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"code":    400,
-				"message": "Failed to open avatar file",
-				"data":    nil,
-			})
-			return
-		}
-		defer src.Close()
 
-		// 上传头像至minio
-		avatarUrl, err := minioClient.UploadFile("avatar", src, file.Size, person.Name)
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"code":    500,
-				"message": err.Error(),
-				"data":    nil,
-			})
-			return
-		}
-		person.AvatarURL = avatarUrl // 存储头像URL
+	// 设置默认头像
+	defaultAvatarPath := "./assets/default_avatar.png"
+	defaultAvatarData, err := os.ReadFile(defaultAvatarPath)
+	if err != nil {
+		log.Errorf("读取默认头像文件失败: %v", err)
 	} else {
-		// 设置默认头像 - 从指定文件夹读取默认头像图片
-		defaultAvatarPath := "./assets/default_avatar.png" // 默认头像文件路径
-
-		// 读取默认头像文件
-		defaultAvatarData, err := os.ReadFile(defaultAvatarPath)
-		if err != nil {
-			log.Errorf("读取默认头像文件失败: %v", err)
-		}
-
-		// 设置默认头像数据
 		person.AvatarBlob = defaultAvatarData
-		person.AvatarURL = "" // 默认头像没有URL
-
 		log.Info("使用默认头像")
 	}
 
@@ -244,14 +243,130 @@ func CreatePerson(c *gin.Context) {
 		return
 	}
 
+	// 返回创建的用户信息
+	personResp := models.PersonResponse{
+		ID:        person.ID,
+		Name:      person.Name,
+		RealName:  person.RealName,
+		Phone:     person.Phone,
+		Wechat:    person.Wechat,
+		Position:  person.Position,
+		Email:     person.Email,
+		Region:    person.Region,
+		CreatedAt: person.CreatedAt,
+		UpdatedAt: person.UpdatedAt,
+	}
+
 	c.JSON(http.StatusCreated, gin.H{
 		"code":    201,
 		"message": "Person created successfully",
-		"data":    person,
+		"data":    personResp,
 	})
 }
 
-// UpdatePerson 更新用户
+// UploadPersonAvatar 上传用户头像（新增接口）
+func UploadPersonAvatar(c *gin.Context) {
+	id := c.Param("id")
+	var person models.Person
+
+	// 查找用户
+	if err := database.DB.First(&person, id).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"code":    404,
+			"message": "Person not found",
+			"data":    nil,
+		})
+		return
+	}
+
+	// 处理头像上传
+	file, err := c.FormFile("avatar")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    400,
+			"message": "No avatar file provided",
+			"data":    nil,
+		})
+		return
+	}
+
+	// 验证文件类型
+	if !isValidImageFile(file.Filename) {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    400,
+			"message": "Invalid image file type",
+			"data":    nil,
+		})
+		return
+	}
+
+	// 验证文件大小（限制为5MB）
+	if file.Size > 5*1024*1024 {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    400,
+			"message": "File size too large (max 5MB)",
+			"data":    nil,
+		})
+		return
+	}
+
+	src, err := file.Open()
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    400,
+			"message": "Failed to open avatar file",
+			"data":    nil,
+		})
+		return
+	}
+	defer src.Close()
+
+	// 上传头像至minio
+	minioClient := minioStore.GetMinio()
+	avatarUrl, err := minioClient.UploadFile("avatar", src, file.Size, person.Name)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    500,
+			"message": err.Error(),
+			"data":    nil,
+		})
+		return
+	}
+
+	// 更新用户头像URL
+	person.AvatarURL = avatarUrl
+	person.UpdatedAt = time.Now()
+
+	if err := database.DB.Save(&person).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    500,
+			"message": "Failed to update avatar",
+			"data":    nil,
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    200,
+		"message": "Avatar uploaded successfully",
+		"data": gin.H{
+			"avatar_url": avatarUrl,
+		},
+	})
+}
+
+// isValidImageFile 验证是否为有效的图片文件
+func isValidImageFile(filename string) bool {
+	validExtensions := []string{".jpg", ".jpeg", ".png", ".gif", ".webp"}
+	for _, ext := range validExtensions {
+		if strings.HasSuffix(strings.ToLower(filename), ext) {
+			return true
+		}
+	}
+	return false
+}
+
+// UpdatePerson 更新用户（重构版本 - 使用JSON）
 func UpdatePerson(c *gin.Context) {
 	id := c.Param("id")
 	var person models.Person
@@ -266,58 +381,42 @@ func UpdatePerson(c *gin.Context) {
 		return
 	}
 
-	// 更新表单数据
-	if name := c.PostForm("name"); name != "" {
-		person.Name = name
+	var req UpdatePersonRequest
+
+	// 绑定JSON数据
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    400,
+			"message": "Invalid request data: " + err.Error(),
+			"data":    nil,
+		})
+		return
 	}
-	if realname := c.PostForm("realname"); realname != "" {
-		person.RealName = realname
+
+	// 更新字段（只更新非空字段）
+	if req.Name != "" {
+		person.Name = req.Name
 	}
-	if phone := c.PostForm("phone"); phone != "" {
-		person.Phone = phone
+	if req.RealName != "" {
+		person.RealName = req.RealName
 	}
-	if wechat := c.PostForm("wechat"); wechat != "" {
-		person.Wechat = wechat
+	if req.Phone != "" {
+		person.Phone = req.Phone
 	}
-	if position := c.PostForm("position"); position != "" {
-		person.Position = position
+	if req.Wechat != "" {
+		person.Wechat = req.Wechat
 	}
-	if email := c.PostForm("email"); email != "" {
-		person.Email = email
+	if req.Position != "" {
+		person.Position = req.Position
 	}
-	if region := c.PostForm("region"); region != "" {
-		person.Region = region
+	if req.Email != "" {
+		person.Email = req.Email
+	}
+	if req.Region != "" {
+		person.Region = req.Region
 	}
 
 	person.UpdatedAt = time.Now()
-
-	// 处理头像上传
-	minioClient := minioStore.GetMinio()
-	file, err := c.FormFile("avatar")
-	if err == nil && file != nil {
-		// 打开文件
-		src, err := file.Open()
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"code":    400,
-				"message": "Failed to open avatar file",
-				"data":    nil,
-			})
-			return
-		}
-		defer src.Close()
-
-		avatarUrl, err := minioClient.UploadFile("avatar", src, file.Size, person.Name)
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"code":    500,
-				"message": err.Error(),
-				"data":    nil,
-			})
-			return
-		}
-		person.AvatarURL = avatarUrl // 存储头像URL
-	}
 
 	// 保存更新
 	if err := database.DB.Save(&person).Error; err != nil {
@@ -329,10 +428,24 @@ func UpdatePerson(c *gin.Context) {
 		return
 	}
 
+	// 返回更新后的用户信息
+	personResp := models.PersonResponse{
+		ID:        person.ID,
+		Name:      person.Name,
+		RealName:  person.RealName,
+		Phone:     person.Phone,
+		Wechat:    person.Wechat,
+		Position:  person.Position,
+		Email:     person.Email,
+		Region:    person.Region,
+		CreatedAt: person.CreatedAt,
+		UpdatedAt: person.UpdatedAt,
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"code":    200,
 		"message": "Person updated successfully",
-		"data":    person,
+		"data":    personResp,
 	})
 }
 

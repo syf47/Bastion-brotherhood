@@ -86,7 +86,7 @@ func initSQLite() error {
 	var err error
 
 	// 使用纯Go的SQLite驱动
-	sqlDB, err := sql.Open("sqlite", "data/persons.db")
+	sqlDB, err := sql.Open("sqlite", "../data/persons.db")
 	if err != nil {
 		return fmt.Errorf("failed to open SQLite database: %v", err)
 	}

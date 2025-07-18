@@ -2,6 +2,7 @@ package routes
 
 import (
 	"bastion-brotherhood/controllers"
+
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
@@ -22,14 +23,15 @@ func SetupRoutes() *gin.Engine {
 		// 用户相关路由
 		persons := api.Group("/persons")
 		{
-			persons.GET("", controllers.GetPersons)        // 获取用户列表
-			persons.GET("/:id", controllers.GetPerson)     // 获取单个用户
-			persons.GET("/:id/avatar", controllers.GetPersonAvatar) // 获取用户头像
-			persons.POST("", controllers.CreatePerson)     // 创建用户
-			persons.PUT("/:id", controllers.UpdatePerson)  // 更新用户
-			persons.DELETE("/:id", controllers.DeletePerson) // 删除用户
+			persons.GET("", controllers.GetPersons)                     // 获取用户列表
+			persons.GET("/:id", controllers.GetPerson)                  // 获取单个用户
+			persons.GET("/:id/avatar", controllers.GetPersonAvatar)     // 获取用户头像
+			persons.POST("", controllers.CreatePerson)                  // 创建用户（JSON格式）
+			persons.POST("/:id/avatar", controllers.UploadPersonAvatar) // 上传用户头像
+			persons.PUT("/:id", controllers.UpdatePerson)               // 更新用户
+			persons.DELETE("/:id", controllers.DeletePerson)            // 删除用户
 		}
 	}
 
 	return r
-} 
+}
