@@ -5,6 +5,10 @@ import { ref, type HTMLAttributes } from 'vue'
 import Avatar from './Avatar.vue'
 import { motion, AnimatePresence } from 'motion-v'
 import { PersonInfoModel } from '.'
+import { usePersonnelStore } from '@/store'
+import { toast } from 'vue-sonner'
+
+const personnelStore = usePersonnelStore()
 
 const props = defineProps<{
   class?: HTMLAttributes['class']
@@ -26,6 +30,19 @@ const handleClick = () => {
 const handleModelVisible = () => {
   visible.value = false
   emits('click:outside')
+}
+
+const removePerson = async () => {
+  // 后续加一个确认删除的确认框 目前点击直接删除了
+  try {
+    await personnelStore.removePerson(props.person.id)
+    toast.success('成员已删除', {
+      position: 'top-center',
+    })
+    visible.value = false
+  } catch (error) {
+    console.error('[Person Card]: ', error)
+  }
 }
 </script>
 
@@ -80,6 +97,7 @@ const handleModelVisible = () => {
       :visible="visible"
       :person="person"
       @click:outside="handleModelVisible"
+      @remove="removePerson"
     />
   </AnimatePresence>
 </template>
