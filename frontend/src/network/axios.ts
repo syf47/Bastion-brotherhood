@@ -3,6 +3,7 @@ import axios, {
   type AxiosError,
   type InternalAxiosRequestConfig,
 } from 'axios'
+import { toast } from 'vue-sonner'
 
 const service = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
@@ -21,11 +22,12 @@ service.interceptors.request.use(
 
 service.interceptors.response.use(
   (response: AxiosResponse): AxiosResponse => {
-    if (response.status === 200) {
+    if (response.status === 200 || response.status === 201) {
       return response
     }
     if (response.status === 401) {
-      // TODO: logout and a error toast
+      // TODO: logout
+      toast.error('登录过期，请重新登录')
       throw new Error(response.status.toString())
     }
     // a error toast
@@ -36,7 +38,8 @@ service.interceptors.response.use(
     const message = error.message
     const code = error.code
     if (status === 401) {
-      // TODO: logout and a error toast
+      // TODO: logout
+      toast.error('登录过期，请重新登录')
       return
     }
     if (
@@ -47,6 +50,7 @@ service.interceptors.response.use(
       return Promise.reject(error)
     }
     // TODO: a error toast
+    toast.error(error ?? '未知错误, 请稍后重试')
     return Promise.reject(error)
   },
 )

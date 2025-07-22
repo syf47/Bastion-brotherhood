@@ -10,3 +10,4 @@ node_modules/
 gin-web-server
 gin-web-server-optimized
 .idea
+data

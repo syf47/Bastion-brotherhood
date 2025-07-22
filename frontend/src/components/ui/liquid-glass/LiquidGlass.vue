@@ -137,10 +137,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div
-    ref="containerRef"
-    :class="cn('overflow-hidden rounded-2xl', props.containerClass)"
-  >
+  <div ref="containerRef" :class="cn('rounded-2xl', props.containerClass)">
     <!-- SVG filter -->
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -181,7 +178,7 @@ onMounted(() => {
 
     <!-- liquid glass container -->
     <div
-      :class="cn('overflow-hidden size-full rounded-2xl border', props.class)"
+      :class="cn(' size-full rounded-2xl border', props.class)"
       :style="{
         // width: `${width}px`,
         // height: `${height}px`,
