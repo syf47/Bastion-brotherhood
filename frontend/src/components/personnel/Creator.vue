@@ -15,6 +15,7 @@ import { usePersonnelStore } from '@/store'
 import type { PersonCreator } from '@type/personnel'
 import { LoadingIcon } from '@/components/ui/loading'
 import { sideCannons } from '@/utils/confetti'
+import { toast } from 'vue-sonner'
 
 const personnelStore = usePersonnelStore()
 
@@ -47,6 +48,9 @@ const handleSubmit = async () => {
     setVisible(false)
     sideCannons()
     goto(1)
+    toast.success('新的兄弟已经添加成功', {
+      position: 'top-center',
+    })
   } catch (error) {
     console.error('[Person Creator]: ', error)
   } finally {

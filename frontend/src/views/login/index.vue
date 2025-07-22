@@ -70,13 +70,13 @@ const formTransition = { duration: 0.6, delay: 0.6 }
       :initial="containerInitial"
       :animate="containerAnimate"
       :transition="containerTransition"
-      class="relative z-10 w-full max-w-4xl px-6"
+      class="relative z-10 w-full max-w-xl p-4"
     >
       <Motion
         :initial="itemInitial"
         :animate="itemAnimate"
         :transition="itemTransition"
-        class="bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-8 md:p-12 shadow-2xl"
+        class="bg-background/10 backdrop-blur-xl border border-background/20 rounded-3xl p-4 shadow-2xl"
       >
         <!-- 标题 -->
         <Motion
