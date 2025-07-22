@@ -2,7 +2,6 @@ import { defineStore } from 'pinia'
 import type { PersonCreator, Person } from '@type/personnel'
 import { fetchPersons, insertPerson, removePerson } from '@/api/personnel'
 import { filterPersons } from './personal.helper'
-import { pswDict_S, pswDict_O } from '@/utils/calcTodayPsw'
 
 export const usePersonnelStore = defineStore('personnel', {
   state: () => ({
@@ -26,9 +25,6 @@ export const usePersonnelStore = defineStore('personnel', {
         this.loading = true
         const ps = await fetchPersons()
         this.persons = ps
-        const names = ps.map(p => p.name)
-        pswDict_S.push(...names)
-        pswDict_O.push(...names)
         this.filteredPersons = ps
         this.fulfilled = true
       } catch (error) {
