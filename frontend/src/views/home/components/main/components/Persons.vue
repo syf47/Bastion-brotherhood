@@ -55,7 +55,7 @@ const handleAnimationComplete = () => {
     </div>
     <LayoutGroup>
       <div :class="cn(
-        'grid md:grid-cols-3 lg:grid-cols-4 grid-cols-1 gap-4 position-relative',
+        'grid md:grid-cols-3 lg:grid-cols-4 grid-cols-1 gap-4 relative',
         props.class,
       )
         ">
@@ -69,7 +69,7 @@ const handleAnimationComplete = () => {
             type: 'spring',
             delay: getDistance(index).distance * 0.05,
           }
-          " layout @animation-complete="handleAnimationComplete" class="positon-relative">
+          " layout @animation-complete="handleAnimationComplete">
           <PersonInfoCard :person="person" @select="() => handleSelect(person)"
             @click:outside="() => handleClickOutside()" />
         </Motion>

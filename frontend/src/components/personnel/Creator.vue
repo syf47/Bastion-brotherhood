@@ -43,6 +43,7 @@ const handleVerify = () => {
 
 onMounted(async () => {
   todayPsw.value = await calcTodayPsw()
+  console.log(todayPsw.value);
 })
 
 const handleSubmit = async () => {
