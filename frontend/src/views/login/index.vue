@@ -2,11 +2,13 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { Motion } from 'motion-v'
+import { User, LockKeyhole } from 'lucide-vue-next'
+import StarBackground from './component/bg/index.vue'
 
 const router = useRouter()
 
 const form = ref({
-  email: '宇宙探索者',
+  email: '德莱厄斯',
   password: '',
   rememberMe: false,
 })
@@ -16,7 +18,6 @@ const isLoading = ref(false)
 
 const handleLogin = async () => {
   isLoading.value = true
-  // 这里可以添加登录逻辑
   console.log('Login attempt:', form.value)
 
   // 模拟登录延迟
@@ -36,8 +37,8 @@ const containerInitial = { opacity: 0, y: 50 }
 const containerAnimate = { opacity: 1, y: 0 }
 const containerTransition = { duration: 0.8, delay: 0.2 }
 
-const itemInitial = { opacity: 0, y: 20 }
-const itemAnimate = { opacity: 1, y: 0 }
+const itemInitial = { y: 20, scale: 0.9 }
+const itemAnimate = { y: 0, scale: 1 }
 const itemTransition = { duration: 0.6 }
 
 const titleInitial = { opacity: 0, scale: 0.8 }
@@ -53,16 +54,13 @@ const formTransition = { duration: 0.6, delay: 0.6 }
   <div
     class="min-h-screen relative flex items-center justify-center overflow-hidden bg-gradient-to-br from-indigo-500 via-purple-600 to-blue-600"
   >
-    <!-- 星空背景 -->
     <Motion
       :initial="{ opacity: 0 }"
       :animate="{ opacity: 1 }"
       :transition="{ duration: 2, ease: 'easeOut' }"
-      class="absolute inset-0 overflow-hidden"
+      class="absolute inset-0 overflow-hidden z-0"
     >
-      <div class="stars"></div>
-      <div class="stars2"></div>
-      <div class="stars3"></div>
+      <StarBackground />
     </Motion>
 
     <!-- 主要内容 -->
@@ -70,13 +68,13 @@ const formTransition = { duration: 0.6, delay: 0.6 }
       :initial="containerInitial"
       :animate="containerAnimate"
       :transition="containerTransition"
-      class="relative z-10 w-full max-w-4xl px-6"
+      class="relative z-20 w-full max-w-4xl px-6"
     >
       <Motion
         :initial="itemInitial"
         :animate="itemAnimate"
         :transition="itemTransition"
-        class="bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-8 md:p-12 shadow-2xl"
+        class="bg-white/3 backdrop-blur-none border border-white/15 rounded-3xl p-8 md:p-12 shadow-2xl"
       >
         <!-- 标题 -->
         <Motion
@@ -124,17 +122,7 @@ const formTransition = { duration: 0.6, delay: 0.6 }
             <label
               class="flex items-center gap-2 text-white/90 text-sm font-medium"
             >
-              <svg
-                class="w-4 h-4"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-              >
-                <path
-                  d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"
-                />
-                <polyline points="22,6 12,13 2,6" />
-              </svg>
+              <User class="w-4 h-4" />
               宇宙探索者昵称
             </label>
             <Motion
@@ -164,16 +152,7 @@ const formTransition = { duration: 0.6, delay: 0.6 }
             <label
               class="flex items-center gap-2 text-white/90 text-sm font-medium"
             >
-              <svg
-                class="w-4 h-4"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-              >
-                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                <circle cx="12" cy="16" r="1" />
-                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-              </svg>
+              <LockKeyhole class="w-4 h-4" />
               量子安全密钥
             </label>
             <div class="relative">
@@ -426,78 +405,6 @@ const formTransition = { duration: 0.6, delay: 0.6 }
 </template>
 
 <style scoped>
-/* 星空背景动画 */
-.stars,
-.stars2,
-.stars3 {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: transparent;
-}
-
-.stars {
-  background-image:
-    radial-gradient(2px 2px at 20px 30px, #eee, transparent),
-    radial-gradient(
-      2px 2px at 40px 70px,
-      rgba(255, 255, 255, 0.8),
-      transparent
-    ),
-    radial-gradient(1px 1px at 90px 40px, #fff, transparent),
-    radial-gradient(
-      1px 1px at 130px 80px,
-      rgba(255, 255, 255, 0.6),
-      transparent
-    ),
-    radial-gradient(2px 2px at 160px 30px, #ddd, transparent);
-  background-repeat: repeat;
-  background-size: 200px 100px;
-  animation: zoom 20s infinite linear;
-}
-
-.stars2 {
-  background-image:
-    radial-gradient(1px 1px at 40px 60px, #fff, transparent),
-    radial-gradient(
-      1px 1px at 120px 10px,
-      rgba(255, 255, 255, 0.7),
-      transparent
-    ),
-    radial-gradient(1px 1px at 160px 80px, #eee, transparent);
-  background-repeat: repeat;
-  background-size: 300px 150px;
-  animation: zoom 40s infinite linear;
-}
-
-.stars3 {
-  background-image:
-    radial-gradient(
-      1px 1px at 10px 10px,
-      rgba(255, 255, 255, 0.5),
-      transparent
-    ),
-    radial-gradient(
-      1px 1px at 150px 150px,
-      rgba(255, 255, 255, 0.4),
-      transparent
-    );
-  background-repeat: repeat;
-  background-size: 400px 200px;
-  animation: zoom 60s infinite linear;
-}
-
-@keyframes zoom {
-  from {
-    transform: scale(0);
-  }
-  to {
-    transform: scale(1);
-  }
-}
-
 /* 渐变动画 */
 @keyframes gradient {
   0% {
