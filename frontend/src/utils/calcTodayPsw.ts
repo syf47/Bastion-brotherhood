@@ -1,18 +1,15 @@
 export const pswDict_S = [
-  "你",
-  "我",
-]
-export const pswDict_V = [
-  "操",
-  "爱",
-  "给了",
-]
-export const pswDict_O = [
-  "傻逼吧",
-  "傻逼",
-  "你妈",
-  "他妈",
-  "他"
+  '导管子了兄弟们',
+  '这扯不扯',
+  '你都喊兄弟了那还说啥了',
+  '我草你妈',
+  '五毒拍批掌',
+  '天青色等烟雨，而我在等你',
+  '你是我心中的一首歌',
+  '今天没有口令',
+  '空的，直接回车',
+  '什么口令？',
+  '马达发卡'
 ]
 // 使用 Web Crypto API 实现 SHA-256 哈希算法
 async function hashIndex(value: number, arrayLength: number): Promise<number> {
@@ -36,8 +33,6 @@ export default async function calcTodayPsw() {
 
   // 使用哈希函数计算索引
   const psw_S = pswDict_S[await hashIndex(combinedDate, pswDict_S.length)];
-  const psw_V = pswDict_V[await hashIndex(combinedDate, pswDict_V.length)];
-  const psw_O = pswDict_O[await hashIndex(combinedDate, pswDict_O.length)];
 
-  return `${psw_S}${psw_V}${psw_O}`;
+  return `${psw_S}`;
 }
