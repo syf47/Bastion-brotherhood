@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import type { PersonCreator, Person } from '@type/personnel'
 import { fetchPersons, insertPerson } from '@/api/personnel'
 import { filterPersons } from './personal.helper'
+import { pswDict_S, pswDict_O } from '@/utils/calcTodayPsw'
 
 export const usePersonnelStore = defineStore('personnel', {
   state: () => ({
@@ -25,6 +26,9 @@ export const usePersonnelStore = defineStore('personnel', {
         this.loading = true
         const ps = await fetchPersons()
         this.persons = ps
+        const names = ps.map(p => p.name)
+        pswDict_S.push(...names)
+        pswDict_O.push(...names)
         this.filteredPersons = ps
         this.fulfilled = true
       } catch (error) {
@@ -38,6 +42,7 @@ export const usePersonnelStore = defineStore('personnel', {
     async createPerson(data: PersonCreator) {
       const person = await insertPerson(data)
       // 添加之后修改现有数据，避免额外请求
+      // 👆这个叫乐观更新，我们李陈哥哥真是个乐观的人啊
       this.persons.push(person)
     },
 

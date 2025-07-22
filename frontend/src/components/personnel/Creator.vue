@@ -7,7 +7,7 @@ import { useState } from '@/hooks/useState'
 import { motion, AnimatePresence, LayoutGroup } from 'motion-v'
 import { Verifier, getCreatorSchema, Namer, Extra } from './creator'
 import { useStep } from '@/hooks/useStep'
-import { computed, useTemplateRef } from 'vue'
+import { computed, onMounted, useTemplateRef, ref } from 'vue'
 import { fadeMotion } from '@/motions/fade'
 import { DotGroup } from '@/components/ui/dot-group'
 import { Plus } from 'lucide-vue-next'
@@ -16,12 +16,15 @@ import type { PersonCreator } from '@type/personnel'
 import { LoadingIcon } from '@/components/ui/loading'
 import { sideCannons } from '@/utils/confetti'
 import { toast } from 'vue-sonner'
+import calcTodayPsw from '@/utils/calcTodayPsw'
 
 const personnelStore = usePersonnelStore()
+const todayPsw = ref<string>('')
 
 const [visible, setVisible] = useState(false)
 const [verified, setVerified] = useState(false)
 const [creating, setCreating] = useState(false)
+
 
 const { currentStep, next, prev, canNext, canPrev, isLastStep, goto } =
   useStep(2)
@@ -37,6 +40,10 @@ const handleClickOutside = () => setVisible(false)
 const handleVerify = () => {
   setVerified(true)
 }
+
+onMounted(async () => {
+  todayPsw.value = await calcTodayPsw()
+})
 
 const handleSubmit = async () => {
   if (!creatorRef.value) return
@@ -60,42 +67,33 @@ const handleSubmit = async () => {
 </script>
 
 <template>
-  <div>
+  <div id="person-creator-banner-btn" class="hideMod">
     <AnimatePresence>
       <motion.div layout-id="person-creator">
         <Button variant="outline" @click="handleClick" class="z-50">
           <motion.div layout-id="person-creator-icon">
             <UserRoundPlus class="size-4" />
           </motion.div>
-          <motion.span layout-id="person-creator-title">添加成员</motion.span>
+          <motion.span layout-id="person-creator-title">添加兄弟</motion.span>
         </Button>
       </motion.div>
 
       <Model :visible="visible" @click:outside="handleClickOutside">
         <LayoutGroup>
-          <motion.div
-            layout-id="person-creator"
-            class="w-md h-fit flex flex-col gap-4 bg-background border rounded-2xl p-4"
-            @click.stop
-          >
+          <motion.div layout-id="person-creator"
+            class="w-md h-fit flex flex-col gap-4 bg-background border rounded-2xl p-4" @click.stop>
             <div class="flex items-center gap-2">
               <motion.div layout-id="person-creator-icon">
                 <UserRoundPlus class="size-5" />
               </motion.div>
 
-              <motion.h2 layout-id="person-creator-title">添加成员</motion.h2>
+              <motion.h2 layout-id="person-creator-title">添加兄弟</motion.h2>
             </div>
             <motion.div v-if="!verified" layout v-bind="fadeMotion">
-              <Verifier @pass="handleVerify" code="wcnm" />
+              <Verifier @pass="handleVerify" :code="todayPsw" />
             </motion.div>
             <motion.div v-else layout v-bind="fadeMotion">
-              <Form
-                ref="creatorFormRef"
-                as=""
-                keep-values
-                :validation-schema="schema"
-                v-slot="{ meta }"
-              >
+              <Form ref="creatorFormRef" as="" keep-values :validation-schema="schema" v-slot="{ meta }">
                 <motion.div v-if="currentStep === 1" v-bind="fadeMotion">
                   <Namer />
                 </motion.div>
@@ -105,21 +103,11 @@ const handleSubmit = async () => {
                 <footer class="flex justify-between items-center mt-4">
                   <DotGroup :total="2" :current="currentStep" />
                   <div class="flex items-center gap-2 max-sm:order-2">
-                    <Button
-                      size="sm"
-                      variant="secondary"
-                      :disabled="!canPrev"
-                      @click="prev"
-                    >
+                    <Button size="sm" variant="secondary" :disabled="!canPrev" @click="prev">
                       <ChevronLeft class="size-4" />
                     </Button>
-                    <Button
-                      v-if="!isLastStep"
-                      size="sm"
-                      variant="secondary"
-                      :disabled="!meta.valid || !canNext"
-                      @click="next"
-                    >
+                    <Button v-if="!isLastStep" size="sm" variant="secondary" :disabled="!meta.valid || !canNext"
+                      @click="next">
                       <ChevronRight class="size-4" />
                     </Button>
                     <Button v-else size="sm" @click="handleSubmit">
