@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import type { PersonCreator, Person } from '@type/personnel'
-import { fetchPersons, insertPerson } from '@/api/personnel'
+import { fetchPersons, insertPerson, removePerson } from '@/api/personnel'
 import { filterPersons } from './personal.helper'
 
 export const usePersonnelStore = defineStore('personnel', {
@@ -39,6 +39,13 @@ export const usePersonnelStore = defineStore('personnel', {
       const person = await insertPerson(data)
       // 添加之后修改现有数据，避免额外请求
       this.persons.push(person)
+      this.filteredPersons.push(person)
+    },
+
+    async removePerson(id: number) {
+      await removePerson(id)
+      this.persons = this.persons.filter((p) => p.id !== id)
+      this.filteredPersons = this.filteredPersons.filter((p) => p.id !== id)
     },
 
     setActivePerson(person: Person | null) {

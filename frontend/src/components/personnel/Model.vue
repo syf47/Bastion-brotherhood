@@ -5,6 +5,8 @@ import { PersonAvatar } from '@/components/personnel'
 import type { Person } from '@type/personnel'
 import { useImageColors } from '@/hooks/useImageColor'
 import { PersonInfoExtra } from '@/components/personnel'
+import { Button } from '@/components/ui/button'
+import { Trash2Icon } from 'lucide-vue-next'
 
 const props = defineProps<{
   person: Person | null
@@ -13,6 +15,7 @@ const props = defineProps<{
 
 const emits = defineEmits<{
   (e: 'click:outside', value: boolean): void
+  (e: 'remove', value: number): void
 }>()
 
 const person = computed(() => props.person)
@@ -29,6 +32,11 @@ const bg = computed(() => {
     ?.map((color) => `rgba(${color.join(',')})`)
     .join(',')})`
 })
+
+const removePerson = () => {
+  if (!person.value) return
+  emits('remove', person.value.id)
+}
 </script>
 
 <template>
@@ -109,6 +117,11 @@ const bg = computed(() => {
                 :position="person.position"
                 :region="person.region"
               />
+              <div class="flex justify-end p-4">
+                <Button variant="outline" @click="removePerson">
+                  <Trash2Icon class="size-4" />
+                </Button>
+              </div>
             </div>
           </motion.div>
         </motion.div>
