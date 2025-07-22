@@ -69,7 +69,7 @@ const handleAnimationComplete = () => {
             type: 'spring',
             delay: getDistance(index).distance * 0.05,
           }
-          " layout @animation-complete="handleAnimationComplete">
+          " layout @animation-complete="handleAnimationComplete" class="positon-relative">
           <PersonInfoCard :person="person" @select="() => handleSelect(person)"
             @click:outside="() => handleClickOutside()" />
         </Motion>

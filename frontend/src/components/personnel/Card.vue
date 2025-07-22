@@ -48,56 +48,34 @@ const removePerson = async () => {
 
 <template>
   <AnimatePresence multiple as="div">
-    <motion.div
-      layout
-      :class="
-        cn(
-          'w-full p-6 rounded-2xl border flex flex-col gap-4 cursor-pointer bg-background overflow-hidden hover:bg-primary/5 transition-colors',
-          props.class,
-        )
-      "
-      :layout-id="`person-card-${person.id}`"
-      :initial="{
+    <motion.div layout :class="cn(
+      'w-full p-6 rounded-2xl border flex flex-col gap-4 cursor-pointer bg-background overflow-hidden hover:bg-primary/5 transition-colors',
+      props.class,
+    )
+      " :layout-id="`person-card-${person.id}`" :initial="{
         scale: 1,
-      }"
-      :while-hover="{
+      }" :while-hover="{
         scale: 1.05,
-      }"
-      @click="handleClick"
-    >
+      }" @click="handleClick">
       <div class="flex items-center justify-between gap-4">
         <motion.div :layout-id="`person-avatar-${person.id}`">
           <Avatar class="size-14" :name="person.name" :url="person.avatar" />
         </motion.div>
         <div class="flex flex-col gap-2 items-end overflow-hidden">
-          <motion.h3
-            :layout-id="`person-name-${person.id}`"
-            class="text-lg font-bold truncate w-full text-end pl-5"
-          >
+          <motion.h3 :layout-id="`person-name-${person.id}`" class="text-lg font-bold truncate w-full text-end pl-5">
             {{ person.name }}
           </motion.h3>
           <div class="flex items-center gap-2 truncate">
-            <motion.p
-              :layout-id="`person-realname-${person.id}`"
-              class="text-sm text-muted-foreground self-end"
-            >
+            <motion.p :layout-id="`person-realname-${person.id}`" class="text-sm text-muted-foreground self-end">
               {{ person.realname }}
             </motion.p>
-            <motion.p
-              :layout-id="`person-id-${person.id}`"
-              class="text-sm text-muted-foreground"
-            >
+            <motion.p :layout-id="`person-id-${person.id}`" class="text-sm text-muted-foreground">
               # {{ person.id }}
             </motion.p>
           </div>
         </div>
       </div>
     </motion.div>
-    <PersonInfoModel
-      :visible="visible"
-      :person="person"
-      @click:outside="handleModelVisible"
-      @remove="removePerson"
-    />
+    <PersonInfoModel :visible="visible" :person="person" @click:outside="handleModelVisible" @remove="removePerson" />
   </AnimatePresence>
 </template>
