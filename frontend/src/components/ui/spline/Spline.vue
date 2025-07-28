@@ -1,16 +1,3 @@
-<template>
-  <ParentSize
-    :parent-size-styles="parentSizeStyles"
-    :debounce-time="50"
-    v-bind="$attrs"
-  >
-    <template #default>
-      <canvas ref="canvasRef" :style="canvasStyle" />
-      <slot v-if="isLoading" />
-    </template>
-  </ParentSize>
-</template>
-
 <script setup lang="ts">
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable no-console */
@@ -161,3 +148,15 @@ onUnmounted(() => {
   }
 })
 </script>
+<template>
+  <ParentSize
+    :parent-size-styles="parentSizeStyles"
+    :debounce-time="50"
+    v-bind="$attrs"
+  >
+    <template #default>
+      <canvas ref="canvasRef" :style="canvasStyle" />
+      <slot v-if="isLoading" />
+    </template>
+  </ParentSize>
+</template>
