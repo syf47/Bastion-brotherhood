@@ -6,27 +6,32 @@ import { Background, LoginForm } from './components'
 import { scaleMotion } from '@/motions/scale'
 import { BlurInText } from '@/components/ui/blur-in-text'
 import { ThemeSwitcher } from '@/components/ui/theme-switcher'
+import { delay } from '@/utils/delay'
+import { toast } from 'vue-sonner'
+import { setToken } from '@/utils/token'
+
+interface LoginInfo {
+  username: string
+  password: string
+}
+
+const FAKE_TOKEN = 'access-token'
 
 const router = useRouter()
 
-const form = ref({
-  email: '德莱厄斯',
-  password: '',
-  rememberMe: false,
-})
+const loading = ref(false)
 
-const isLoading = ref(false)
+const handleLogin = async ({ password, username }: LoginInfo) => {
+  loading.value = true
+  await delay()
+  loading.value = false
 
-const handleLogin = async () => {
-  isLoading.value = true
-  console.log('Login attempt:', form.value)
-
-  // 模拟登录延迟
-  await new Promise((resolve) => setTimeout(resolve, 1500))
-
-  // 登录成功后跳转到首页
-  router.push('/')
-  isLoading.value = false
+  if (password === 'wcnm' && username === 'wcnm') {
+    setToken(FAKE_TOKEN)
+    router.push('/')
+  } else {
+    toast.error('用户名或密码错误')
+  }
 }
 </script>
 
@@ -57,7 +62,7 @@ const handleLogin = async () => {
           class="text-md md:text-lg"
         />
       </Motion>
-      <LoginForm />
+      <LoginForm :loading="loading" @submit="handleLogin" />
       <div class="flex justify-center mt-4">
         <ThemeSwitcher />
       </div>
