@@ -1,22 +1,28 @@
 <script setup lang="ts">
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable no-console */
-import { ref, onMounted, onUnmounted, computed, watch, nextTick } from 'vue'
+import {
+  ref,
+  onMounted,
+  onUnmounted,
+  computed,
+  watch,
+  nextTick,
+  type CSSProperties,
+} from 'vue'
 import { Application, type SplineEventName } from '@splinetool/runtime'
 import { useDebounceFn, useIntersectionObserver } from '@vueuse/core'
 import ParentSize from './ParentSize.vue'
 
-const props = defineProps({
-  scene: {
-    type: String,
-    required: true,
-  },
-  onLoad: Function,
-  renderOnDemand: {
-    type: Boolean,
-    default: true,
-  },
-  style: Object,
+interface SplineProps {
+  scene: string
+  onLoad?: (app: Application) => void
+  style?: CSSProperties
+  renderOnDemand?: boolean
+}
+
+const props = withDefaults(defineProps<SplineProps>(), {
+  renderOnDemand: true,
 })
 
 const emit = defineEmits([
@@ -138,6 +144,14 @@ onMounted(async () => {
       initialize()
     }
   })
+  watch(
+    () => props.scene,
+    (scene) => {
+      if (scene) {
+        initialize()
+      }
+    },
+  )
 })
 
 onUnmounted(() => {
