@@ -1,12 +1,17 @@
 <script setup lang="ts">
 import { Spline } from '@/components/ui/spline'
+import { useDarkMode } from '@/hooks/useDarkMode'
 import { cn } from '@/lib/utils'
-import type { HTMLAttributes } from 'vue'
+import { computed, type HTMLAttributes } from 'vue'
 
-const splineUrl = new URL(
-  '../../../assets/spline/scene.splinecode',
-  import.meta.url,
-).href
+const { mode } = useDarkMode()
+
+const splineUrl = computed(() => {
+  return new URL(
+    `../../../assets/spline/scene.${mode.value}.splinecode`,
+    import.meta.url,
+  ).href
+})
 
 const props = defineProps<{
   class?: HTMLAttributes['class']
@@ -14,5 +19,8 @@ const props = defineProps<{
 </script>
 
 <template>
-  <Spline :scene="splineUrl" :class="cn('size-full', props.class)" />
+  <Spline
+    :scene="splineUrl"
+    :class="cn('size-full bg-background', props.class)"
+  />
 </template>
