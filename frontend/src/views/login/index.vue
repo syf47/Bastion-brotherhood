@@ -3,7 +3,6 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { Motion } from 'motion-v'
 import { Background, LoginForm } from './components'
-import { scaleMotion } from '@/motions/scale'
 import { BlurInText } from '@/components/ui/blur-in-text'
 import { ThemeSwitcher } from '@/components/ui/theme-switcher'
 import { delay } from '@/utils/delay'
@@ -41,7 +40,6 @@ const handleLogin = async ({ password, username }: LoginInfo) => {
   >
     <Background class="absolute inset-0 overflow-hidden" />
     <Motion
-      v-bind="scaleMotion"
       :transition="{
         type: 'spring',
       }"
@@ -50,14 +48,12 @@ const handleLogin = async ({ password, username }: LoginInfo) => {
       <!-- 标题 -->
       <Motion class="text-center mb-10">
         <BlurInText
-          :delay="0.5"
           words="堡垒之门"
           mode="pre"
           class="text-2xl md:text-4xl font-bold mb-4 drop-shadow-lg"
         />
         <BlurInText
           words="穿越宇宙维度的入口"
-          :delay="1"
           mode="pre"
           class="text-md md:text-lg"
         />
