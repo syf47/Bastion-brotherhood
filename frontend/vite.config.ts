@@ -12,6 +12,8 @@ export default defineConfig(({ mode }) => {
   const root = process.cwd()
   const env = loadEnv(mode, root)
 
+  const { VITE_API_BASE_URL: BASE_URL, VITE_API_SERVER_URL: SERVER_URL } = env
+
   return {
     plugins: [vue(), vueJsx(), vueDevTools(), tailwindcss()],
     resolve: {
@@ -22,10 +24,10 @@ export default defineConfig(({ mode }) => {
     },
     server: {
       proxy: {
-        '/api': {
-          target: env.VITE_API_SERVER_URL,
+        [BASE_URL]: {
+          target: SERVER_URL,
           changeOrigin: false,
-          rewrite: (path) => path.replace(/^\/api/, ''),
+          rewrite: (path) => path.replace(new RegExp(`^${BASE_URL}`), ''),
         },
       },
     },
