@@ -50,7 +50,7 @@ function submit() {
     <div class="flex flex-col gap-2">
       <div class="flex items-center">
         <LockKeyhole class="size-4 mr-2" />
-        <span>你寄吧谁啊</span>
+        <span>密码的</span>
       </div>
       <Input
         :disabled="loading"
