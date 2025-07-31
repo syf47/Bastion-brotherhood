@@ -29,27 +29,6 @@ function setResolvePromise(handler: VisibleHandler) {
   resolvePromise.value = handler
 }
 
-// let cancelHandler: Nullable<AnyNormalFunction<[boolean], void>> = null
-// function setCancelHandler(
-//   handler: Nullable<AnyNormalFunction<[boolean], void>>,
-// ) {
-//   cancelHandler = handler
-// }
-
-// let actionHandler: Nullable<AnyNormalFunction<[boolean], void>> = null
-// function setActionHandler(
-//   handler: Nullable<AnyNormalFunction<[boolean], void>>,
-// ) {
-//   actionHandler = handler
-// }
-
-// let resolvePromise: Nullable<AnyNormalFunction<[boolean], void>> = null
-// function setResolvePromise(
-//   handler: Nullable<AnyNormalFunction<[boolean], void>>,
-// ) {
-//   resolvePromise = handler
-// }
-
 function useAlertDialogState() {
   return {
     visible,
