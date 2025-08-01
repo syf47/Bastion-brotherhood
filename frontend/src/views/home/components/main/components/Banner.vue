@@ -13,6 +13,7 @@ import { PersonCreator } from '@/components/personnel'
 import { LogOut } from 'lucide-vue-next'
 import { removeToken } from '@/utils/token'
 import { useRouter } from 'vue-router'
+import { showAlert } from '@/components/hooks'
 
 const router = useRouter()
 
@@ -27,8 +28,14 @@ const handleFilter = debounce((query: string) => {
 }, 200)
 
 function logout() {
-  removeToken()
-  router.push('/login')
+  showAlert({
+    title: '注销登录',
+    description: '确定要注销登录吗？',
+    onAction: () => {
+      removeToken()
+      router.push('/login')
+    },
+  })
 }
 </script>
 
