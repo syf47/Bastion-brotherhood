@@ -8,7 +8,7 @@ import { Motion, LayoutGroup } from 'motion-v'
 import { calculateDelta } from './utils'
 import { useState } from '@/hooks/useState'
 import { useScreenSize } from '@/hooks/useScreenSize'
-import hideMods from '@/utils/hideMods'
+import { hideMods } from '@/utils/hide-mods'
 
 const props = defineProps<{ class?: HTMLAttributes['class'] }>()
 

@@ -16,7 +16,7 @@ import type { PersonCreator } from '@type/personnel'
 import { LoadingIcon } from '@/components/ui/loading'
 import { sideCannons } from '@/utils/confetti'
 import { toast } from 'vue-sonner'
-import calcTodayPsw from '@/utils/calcTodayPsw'
+import { calcTodayPsw } from '@/utils/calc-today-psw'
 
 const personnelStore = usePersonnelStore()
 const todayPsw = ref<string>('')
@@ -24,7 +24,6 @@ const todayPsw = ref<string>('')
 const [visible, setVisible] = useState(false)
 const [verified, setVerified] = useState(false)
 const [creating, setCreating] = useState(false)
-
 
 const { currentStep, next, prev, canNext, canPrev, isLastStep, goto } =
   useStep(2)
@@ -40,11 +39,6 @@ const handleClickOutside = () => setVisible(false)
 const handleVerify = () => {
   setVerified(true)
 }
-
-onMounted(async () => {
-  todayPsw.value = await calcTodayPsw()
-  // console.log(todayPsw.value);
-})
 
 const handleSubmit = async () => {
   if (!creatorRef.value) return
@@ -65,6 +59,10 @@ const handleSubmit = async () => {
     setCreating(false)
   }
 }
+
+onMounted(async () => {
+  todayPsw.value = await calcTodayPsw()
+})  
 </script>
 
 <template>
@@ -81,8 +79,11 @@ const handleSubmit = async () => {
 
       <Model :visible="visible" @click:outside="handleClickOutside">
         <LayoutGroup>
-          <motion.div layout-id="person-creator"
-            class="w-md h-fit flex flex-col gap-4 bg-background border rounded-2xl p-4" @click.stop>
+          <motion.div
+            layout-id="person-creator"
+            class="w-md h-fit flex flex-col gap-4 bg-background border rounded-2xl p-4"
+            @click.stop
+          >
             <div class="flex items-center gap-2">
               <motion.div layout-id="person-creator-icon">
                 <UserRoundPlus class="size-5" />
@@ -94,7 +95,13 @@ const handleSubmit = async () => {
               <Verifier @pass="handleVerify" :code="todayPsw" />
             </motion.div>
             <motion.div v-else layout v-bind="fadeMotion">
-              <Form ref="creatorFormRef" as="" keep-values :validation-schema="schema" v-slot="{ meta }">
+              <Form
+                ref="creatorFormRef"
+                as=""
+                keep-values
+                :validation-schema="schema"
+                v-slot="{ meta }"
+              >
                 <motion.div v-if="currentStep === 1" v-bind="fadeMotion">
                   <Namer />
                 </motion.div>
@@ -104,11 +111,21 @@ const handleSubmit = async () => {
                 <footer class="flex justify-between items-center mt-4">
                   <DotGroup :total="2" :current="currentStep" />
                   <div class="flex items-center gap-2 max-sm:order-2">
-                    <Button size="sm" variant="secondary" :disabled="!canPrev" @click="prev">
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      :disabled="!canPrev"
+                      @click="prev"
+                    >
                       <ChevronLeft class="size-4" />
                     </Button>
-                    <Button v-if="!isLastStep" size="sm" variant="secondary" :disabled="!meta.valid || !canNext"
-                      @click="next">
+                    <Button
+                      v-if="!isLastStep"
+                      size="sm"
+                      variant="secondary"
+                      :disabled="!meta.valid || !canNext"
+                      @click="next"
+                    >
                       <ChevronRight class="size-4" />
                     </Button>
                     <Button v-else size="sm" @click="handleSubmit">
