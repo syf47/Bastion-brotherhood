@@ -12,11 +12,12 @@ export const usePersonnelStore = defineStore('personnel', {
     loading: false,
     error: false,
 
-    filteredPersons: [] as Person[],
+    query: '',
   }),
 
   getters: {
     personsCount: (state) => state.persons.length,
+    filteredPersons: (state) => filterPersons(state.persons, state.query),
   },
 
   actions: {
@@ -25,7 +26,6 @@ export const usePersonnelStore = defineStore('personnel', {
         this.loading = true
         const ps = await fetchPersons()
         this.persons = ps
-        this.filteredPersons = ps
         this.fulfilled = true
       } catch (error) {
         this.error = true
@@ -40,13 +40,11 @@ export const usePersonnelStore = defineStore('personnel', {
       // 添加之后修改现有数据，避免额外请求
       // 👆这个叫乐观更新，我们李陈哥哥真是个乐观的人啊
       this.persons.push(person)
-      this.filteredPersons.push(person)
     },
 
     async removePerson(id: number) {
       await removePerson(id)
       this.persons = this.persons.filter((p) => p.id !== id)
-      this.filteredPersons = this.filteredPersons.filter((p) => p.id !== id)
     },
 
     setActivePerson(person: Person | null) {
@@ -57,8 +55,8 @@ export const usePersonnelStore = defineStore('personnel', {
       this.setActivePerson(null)
     },
 
-    filterPersons(query: string) {
-      this.filteredPersons = filterPersons(this.persons, query)
+    setQuery(query: string) {
+      this.query = query
     },
   },
 })

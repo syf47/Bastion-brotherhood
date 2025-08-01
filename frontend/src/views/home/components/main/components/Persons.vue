@@ -46,32 +46,50 @@ const handleAnimationComplete = () => {
 </script>
 
 <template>
-  <div class="size-full" :class="{
-    'pointer-events-none': !animationCompleted,
-  }">
+  <div
+    class="size-full"
+    :class="{
+      'pointer-events-none': !animationCompleted,
+    }"
+  >
     <div class="hideMode">
       <div class="left" @click="onHideModeClick('left')"></div>
       <div class="right" @click="onHideModeClick('right')"></div>
     </div>
     <LayoutGroup>
-      <div :class="cn(
-        'grid md:grid-cols-3 lg:grid-cols-4 grid-cols-1 gap-4 relative',
-        props.class,
-      )
-        ">
-        <Motion v-for="(person, index) in personnelStore.filteredPersons" :key="person.id" :initial="{
-          opacity: 0,
-          x: animationCompleted ? 0 : getDistance(index).x * 200,
-          y: animationCompleted ? 0 : getDistance(index).y * 100,
-        }" :animate="{ opacity: 1, x: 0, y: 0 }" :transition="animationCompleted
-          ? undefined
-          : {
-            type: 'spring',
-            delay: getDistance(index).distance * 0.05,
-          }
-          " layout @animation-complete="handleAnimationComplete">
-          <PersonInfoCard :person="person" @select="() => handleSelect(person)"
-            @click:outside="() => handleClickOutside()" />
+      <div
+        :class="
+          cn(
+            'grid md:grid-cols-3 lg:grid-cols-4 grid-cols-1 gap-4 relative',
+            props.class,
+          )
+        "
+      >
+        <Motion
+          v-for="(person, index) in personnelStore.filteredPersons"
+          :key="person.id"
+          :initial="{
+            opacity: 0,
+            x: animationCompleted ? 0 : getDistance(index).x * 200,
+            y: animationCompleted ? 0 : getDistance(index).y * 100,
+          }"
+          :animate="{ opacity: 1, x: 0, y: 0 }"
+          :transition="
+            animationCompleted
+              ? undefined
+              : {
+                  type: 'spring',
+                  delay: getDistance(index).distance * 0.05,
+                }
+          "
+          layout
+          @animation-complete="handleAnimationComplete"
+        >
+          <PersonInfoCard
+            :person="person"
+            @select="() => handleSelect(person)"
+            @click:outside="() => handleClickOutside()"
+          />
         </Motion>
       </div>
     </LayoutGroup>
@@ -91,8 +109,8 @@ const handleAnimationComplete = () => {
   display: flex;
 }
 
-.hideMode>.left,
-.hideMode>.right {
+.hideMode > .left,
+.hideMode > .right {
   flex: 1;
   height: 100%;
   pointer-events: all;
