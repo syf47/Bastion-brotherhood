@@ -5,7 +5,7 @@ import { Form } from '@/components/ui/form'
 import { UserRoundPlus, ChevronRight, ChevronLeft } from 'lucide-vue-next'
 import { useState } from '@/hooks/useState'
 import { motion, AnimatePresence, LayoutGroup } from 'motion-v'
-import { Verifier, getCreatorSchema, Namer, Extra } from './creator'
+import { Verifier, getCreatorSchema, Namer, Extra, Avatar } from './creator'
 import { useStep } from '@/hooks/useStep'
 import { computed, onMounted, useTemplateRef, ref } from 'vue'
 import { fadeMotion } from '@/motions/fade'
@@ -17,16 +17,17 @@ import { LoadingIcon } from '@/components/ui/loading'
 import { sideCannons } from '@/utils/confetti'
 import { toast } from 'vue-sonner'
 import { calcTodayPsw } from '@/utils/calc-today-psw'
+import { __DEV__ } from '@/utils/env'
 
 const personnelStore = usePersonnelStore()
-const todayPsw = ref<string>('')
+const todayPsw = ref('')
 
 const [visible, setVisible] = useState(false)
 const [verified, setVerified] = useState(false)
 const [creating, setCreating] = useState(false)
 
 const { currentStep, next, prev, canNext, canPrev, isLastStep, goto } =
-  useStep(2)
+  useStep(3)
 
 const creatorRef = useTemplateRef('creatorFormRef')
 
@@ -62,11 +63,16 @@ const handleSubmit = async () => {
 
 onMounted(async () => {
   todayPsw.value = await calcTodayPsw()
-})  
+})
 </script>
 
 <template>
-  <div id="person-creator-banner-btn" class="hideMod">
+  <div
+    id="person-creator-banner-btn"
+    :class="{
+      hideMod: !__DEV__,
+    }"
+  >
     <AnimatePresence>
       <motion.div layout-id="person-creator">
         <Button variant="outline" @click="handleClick" class="z-50">
@@ -107,6 +113,9 @@ onMounted(async () => {
                 </motion.div>
                 <motion.div v-if="currentStep === 2" v-bind="fadeMotion">
                   <Extra />
+                </motion.div>
+                <motion.div v-if="currentStep === 3" v-bind="fadeMotion">
+                  <Avatar />
                 </motion.div>
                 <footer class="flex justify-between items-center mt-4">
                   <DotGroup :total="2" :current="currentStep" />
