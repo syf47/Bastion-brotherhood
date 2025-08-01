@@ -13,7 +13,15 @@ const extra = z.object({
   region: z.string().min(2).optional(),
 })
 
-const creatorSchema = [toTypedSchema(namer), toTypedSchema(extra)]
+const avatar = z.object({
+  avatar: z.file().optional(),
+})
+
+const creatorSchema = [
+  toTypedSchema(namer),
+  toTypedSchema(extra),
+  toTypedSchema(avatar),
+]
 
 const getCreatorSchema = (index: number) => {
   return creatorSchema[index]

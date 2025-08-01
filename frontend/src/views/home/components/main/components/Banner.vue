@@ -24,7 +24,7 @@ const personnelStore = usePersonnelStore()
 const filter = ref('')
 
 const handleFilter = debounce((query: string) => {
-  personnelStore.filterPersons(query)
+  personnelStore.setQuery(query)
 }, 200)
 
 function logout() {
