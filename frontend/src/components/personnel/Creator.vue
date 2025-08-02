@@ -97,7 +97,7 @@ onMounted(async () => {
 
               <motion.h2 layout-id="person-creator-title">添加兄弟</motion.h2>
             </div>
-            <motion.div v-if="!verified" layout v-bind="fadeMotion">
+            <motion.div v-if="!verified && !__DEV__" layout v-bind="fadeMotion">
               <Verifier @pass="handleVerify" :code="todayPsw" />
             </motion.div>
             <motion.div v-else layout v-bind="fadeMotion">
