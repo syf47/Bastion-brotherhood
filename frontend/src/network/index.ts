@@ -34,7 +34,7 @@ function http<T>({
       return res.data.data
     }
     // TODO: a error toast
-    toast.error(res.data.message ?? '未知错误, 请稍后重试')
+    toast.error(res.data.message || '未知错误, 请稍后重试')
     return Promise.reject(res.data)
   }
 

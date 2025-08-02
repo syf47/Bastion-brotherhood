@@ -1,4 +1,4 @@
-import { defineComponent, onMounted } from 'vue'
+import { defineComponent } from 'vue'
 import { Input } from '@/components/ui/input'
 import { useState } from '@/hooks/useState'
 import { KeyRound } from 'lucide-vue-next'
