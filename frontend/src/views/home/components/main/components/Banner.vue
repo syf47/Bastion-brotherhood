@@ -49,10 +49,7 @@ function logout() {
       delay: 0.8,
     }"
   >
-    <LiquidGlass
-      container-class="w-full h-16 shadow-lg"
-      class="bg-background/20"
-    >
+    <LiquidGlass container-class="w-full h-16 shadow-lg bg-background/10">
       <div class="flex px-4 justify-between items-center size-full">
         <Motion as="h2">欢迎来到不朽堡垒</Motion>
         <div class="flex items-center gap-2">
