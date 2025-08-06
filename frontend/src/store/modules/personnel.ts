@@ -18,6 +18,8 @@ export const usePersonnelStore = defineStore('personnel', {
   getters: {
     personsCount: (state) => state.persons.length,
     filteredPersons: (state) => filterPersons(state.persons, state.query),
+    firstPerson: (state) => state.persons[0],
+    lastPerson: (state) => state.persons[state.persons.length - 1],
   },
 
   actions: {
@@ -37,14 +39,18 @@ export const usePersonnelStore = defineStore('personnel', {
 
     async createPerson(data: PersonCreator) {
       const person = await insertPerson(data)
-      // 添加之后修改现有数据，避免额外请求
-      // 👆这个叫乐观更新，我们李陈哥哥真是个乐观的人啊
       this.persons.push(person)
     },
 
     async removePerson(id: number) {
       await removePerson(id)
       this.persons = this.persons.filter((p) => p.id !== id)
+    },
+
+    updatePersonLocal(id: number, person: Partial<Person>) {
+      this.persons = this.persons.map((p) =>
+        p.id === id ? { ...p, ...person } : p,
+      )
     },
 
     setActivePerson(person: Person | null) {
