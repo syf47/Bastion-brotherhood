@@ -89,6 +89,7 @@ const removePerson = () => {
                 <div class="flex items-center gap-2 absolute -bottom-10 left-4">
                   <motion.div :layout-id="`person-avatar-${person.id}`">
                     <PersonAvatar
+                      :user-id="person.id"
                       :name="person.name"
                       :url="person.avatar"
                       class="size-20"
@@ -110,21 +111,21 @@ const removePerson = () => {
                   </div>
                 </div>
               </div>
+              <div class="flex justify-end p-4 pb-0">
+                <PersonDialog @click:outside="removePerson">
+                  <Button variant="outline" size="icon">
+                    <Trash2Icon class="size-4" />
+                  </Button>
+                </PersonDialog>
+              </div>
               <PersonInfoExtra
-                class="mt-10 p-4"
+                class="p-4"
                 :phone="person.phone"
                 :wechat="person.wechat"
                 :email="person.email"
                 :position="person.position"
                 :region="person.region"
               />
-              <div class="flex justify-end p-4">
-                <PersonDialog @click:outside="removePerson">
-                  <Button variant="outline">
-                    <Trash2Icon class="size-4" />
-                  </Button>
-                </PersonDialog>
-              </div>
             </div>
           </motion.div>
         </motion.div>
