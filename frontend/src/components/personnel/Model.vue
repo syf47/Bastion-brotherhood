@@ -93,6 +93,7 @@ const removePerson = () => {
                       :name="person.name"
                       :url="person.avatar"
                       class="size-20"
+                      editable
                     />
                   </motion.div>
                   <div class="h-16 flex flex-col justify-between">

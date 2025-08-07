@@ -14,9 +14,12 @@ interface Props {
   url?: string
   name: string
   userId?: number
+  editable?: boolean
 }
 
-const props = defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), {
+  editable: false,
+})
 
 const [uploading, setUploading] = useState(false)
 
@@ -52,8 +55,9 @@ async function handleUpload(event: Event) {
 
   try {
     setUploading(true)
-    const { avatar_url } = await updateAvatar(id, file)
-    personnelStore.updatePersonLocal(id, { avatar: avatar_url })
+    await updateAvatar(id, file)
+    const url = URL.createObjectURL(file)
+    personnelStore.updatePersonLocal(id, { avatar: url })
   } catch {
     toast.error('上传失败', {
       description: '请稍后重试',
@@ -65,7 +69,12 @@ async function handleUpload(event: Event) {
 </script>
 
 <template>
-  <div class="relative rounded-full overflow-hidden">
+  <div
+    class="relative rounded-full overflow-hidden"
+    :class="{
+      'pointer-events-none': !editable,
+    }"
+  >
     <Avatar :class="cn('', props.class)">
       <AvatarImage :src="url || ''" :alt="name" />
       <AvatarFallback>{{ name.slice(0, 1).toUpperCase() }}</AvatarFallback>
