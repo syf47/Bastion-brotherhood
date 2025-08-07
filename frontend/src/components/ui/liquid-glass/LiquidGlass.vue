@@ -1,196 +1,256 @@
 <script setup lang="ts">
-import { type HTMLAttributes, ref, onMounted, useId, useTemplateRef } from 'vue'
+import {
+  computed,
+  type HTMLAttributes,
+  onMounted,
+  onUnmounted,
+  reactive,
+  ref,
+} from 'vue'
 import { cn } from '@/lib/utils'
-import { useEventListener } from '@vueuse/core'
-import { debounce } from '@/utils/debounce'
 
 interface Props {
+  radius?: number
+  border?: number
+  lightness?: number
+  displace?: number
+  blend?: string
+  xChannel?: 'R' | 'G' | 'B'
+  yChannel?: 'R' | 'G' | 'B'
+  alpha?: number
+  blur?: number
+  rOffset?: number
+  gOffset?: number
+  bOffset?: number
+  scale?: number
+  frost?: number
   class?: HTMLAttributes['class']
   containerClass?: HTMLAttributes['class']
-  borderRadius?: number
-  scale?: number
 }
 
+// Props definition
 const props = withDefaults(defineProps<Props>(), {
-  borderRadius: 50,
-  scale: 1,
+  radius: 16,
+  border: 0.07,
+  lightness: 50,
+  blend: 'difference',
+  xChannel: 'R',
+  yChannel: 'B',
+  alpha: 0.93,
+  blur: 11,
+  rOffset: 0,
+  gOffset: 10,
+  bOffset: 20,
+  scale: -180,
+  frost: 0.05,
 })
 
-const filterId = `liquid-glass-${useId()}`
+// Refs
+const liquidGlassRoot = ref<HTMLElement | null>(null)
+const dimensions = reactive({
+  width: 0,
+  height: 0,
+})
 
-const width = ref(300)
-const height = ref(200)
+let observer: ResizeObserver | null = null
 
-const canvasRef = useTemplateRef('canvasRef')
-const feImageRef = useTemplateRef('feImageRef')
-const feDisplacementMapRef = useTemplateRef('feDisplacementMapRef')
-const containerRef = useTemplateRef('containerRef')
-
-function smoothStep(a: number, b: number, t: number): number {
-  t = Math.max(0, Math.min(1, (t - a) / (b - a)))
-  return t * t * (3 - 2 * t)
-}
-
-function length(x: number, y: number): number {
-  return Math.sqrt(x * x + y * y)
-}
-
-function roundedRectSDF(
-  x: number,
-  y: number,
-  width: number,
-  height: number,
-  radius: number,
-): number {
-  const qx = Math.abs(x) - width + radius
-  const qy = Math.abs(y) - height + radius
-  return (
-    Math.min(Math.max(qx, qy), 0) +
-    length(Math.max(qx, 0), Math.max(qy, 0)) -
-    radius
-  )
-}
-
-function texture(x: number, y: number): { type: string; x: number; y: number } {
-  return { type: 't', x, y }
-}
-
-// 更新shader
-function updateShader() {
-  if (!canvasRef.value || !feImageRef.value || !feDisplacementMapRef.value)
-    return
-
-  const canvasDPI = 1
-  const w = width.value * canvasDPI
-  const h = height.value * canvasDPI
-  const canvas = canvasRef.value
-  const context = canvas.getContext('2d')
-
-  if (!context) return
-
-  canvas.width = w
-  canvas.height = h
-
-  const data = new Uint8ClampedArray(w * h * 4)
-  let maxScale = 0
-  const rawValues: number[] = []
-
-  // Fragment shader
-  const fragment = (uv: { x: number; y: number }) => {
-    const ix = uv.x - 0.5
-    const iy = uv.y - 0.5
-    const distanceToEdge = roundedRectSDF(ix, iy, 0.3, 0.2, 0.6)
-    const displacement = smoothStep(0.8, 0, distanceToEdge - 0.15)
-    const scaled = smoothStep(0, 1, displacement)
-    return texture(ix * scaled + 0.5, iy * scaled + 0.5)
+const baseStyle = computed(() => {
+  return {
+    '--frost': props.frost,
+    'border-radius': `${props.radius}px`,
   }
+})
 
-  // 计算位移数据
-  for (let i = 0; i < data.length; i += 4) {
-    const x = (i / 4) % w
-    const y = Math.floor(i / 4 / w)
-    const pos = fragment({ x: x / w, y: y / h })
-    const dx = pos.x * w - x
-    const dy = pos.y * h - y
-    maxScale = Math.max(maxScale, Math.abs(dx), Math.abs(dy))
-    rawValues.push(dx, dy)
-  }
+// Computed displacement image
+const displacementImage = computed(() => {
+  const border =
+    Math.min(dimensions.width, dimensions.height) * (props.border * 0.5)
+  const yBorder =
+    Math.min(dimensions.width, dimensions.height) * (props.border * 0.5)
 
-  maxScale *= 0.5
+  return `
+    <svg viewBox="0 0 ${dimensions.width} ${dimensions.height}" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="red" x1="100%" y1="0%" x2="0%" y2="0%">
+          <stop offset="0%" stop-color="#0000"/>
+          <stop offset="100%" stop-color="red"/>
+        </linearGradient>
+        <linearGradient id="blue" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#0000"/>
+          <stop offset="100%" stop-color="blue"/>
+        </linearGradient>
+      </defs>
+      <rect x="0" y="0" width="${dimensions.width}" height="${dimensions.height}" fill="black"></rect>
+      <rect x="0" y="0" width="${dimensions.width}" height="${dimensions.height}" rx="${props.radius}" fill="url(#red)" />
+      <rect x="0" y="0" width="${dimensions.width}" height="${dimensions.height}" rx="${props.radius}" fill="url(#blue)" style="mix-blend-mode: ${props.blend}" />
+      <rect
+        x="${border}"
+        y="${yBorder}"
+        width="${dimensions.width - border * 2}"
+        height="${dimensions.height - border * 2}"
+        rx="${props.radius}"
+        fill="hsl(0 0% ${props.lightness}% / ${props.alpha})"
+        style="filter:blur(${props.blur}px)"
+      />
+    </svg>
+  `
+})
 
-  // 填充像素数据
-  let index = 0
-  for (let i = 0; i < data.length; i += 4) {
-    const r = rawValues[index++] / maxScale + 0.5
-    const g = rawValues[index++] / maxScale + 0.5
-    data[i] = r * 255
-    data[i + 1] = g * 255
-    data[i + 2] = 0
-    data[i + 3] = 255
-  }
+// Data URI for SVG filter
+const displacementDataUri = computed(() => {
+  const encoded = encodeURIComponent(displacementImage.value)
+  return `data:image/svg+xml,${encoded}`
+})
 
-  context.putImageData(new ImageData(data, w, h), 0, 0)
-  feImageRef.value.setAttributeNS(
-    'http://www.w3.org/1999/xlink',
-    'href',
-    canvas.toDataURL(),
-  )
-  feDisplacementMapRef.value.setAttribute(
-    'scale',
-    ((maxScale / canvasDPI) * props.scale).toString(),
-  )
-}
-
-function updateContainerSize() {
-  if (!containerRef.value) return
-  const rect = containerRef.value.getBoundingClientRect()
-  width.value = rect.width
-  height.value = rect.height
-}
-
-useEventListener('resize', debounce(updateContainerSize, 200))
-
+// Lifecycle hooks
 onMounted(() => {
-  updateShader()
-  updateContainerSize()
+  if (!liquidGlassRoot.value) return
+
+  observer = new ResizeObserver((entries) => {
+    const entry = entries[0]
+    if (!entry) return
+
+    let width = 0
+    let height = 0
+
+    if (entry.borderBoxSize && entry.borderBoxSize?.length) {
+      width = entry.borderBoxSize[0]!.inlineSize
+      height = entry.borderBoxSize[0]!.blockSize
+    } else if (entry.contentRect) {
+      width = entry.contentRect.width
+      height = entry.contentRect.height
+    }
+
+    dimensions.width = width
+    dimensions.height = height
+  })
+
+  observer.observe(liquidGlassRoot.value)
+})
+
+onUnmounted(() => {
+  observer?.disconnect()
 })
 </script>
 
 <template>
-  <div ref="containerRef" :class="cn('rounded-2xl', props.containerClass)">
-    <!-- SVG filter -->
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="0"
-      height="0"
-      class="fixed top-0 left-0 pointer-events-none"
-      style="z-index: -1"
-    >
+  <div
+    ref="liquidGlassRoot"
+    class="effect"
+    :class="[props.containerClass]"
+    :style="baseStyle"
+  >
+    <div :class="cn('slot-container', props.class)">
+      <slot />
+    </div>
+
+    <svg class="filter" xmlns="http://www.w3.org/2000/svg">
       <defs>
-        <filter
-          :id="filterId"
-          filterUnits="userSpaceOnUse"
-          colorInterpolationFilters="sRGB"
-          x="0"
-          y="0"
-          :width="width"
-          :height="height"
-        >
+        <filter id="displacementFilter" color-interpolation-filters="sRGB">
           <feImage
-            ref="feImageRef"
-            :id="`${filterId}_map`"
-            :width="width"
-            :height="height"
+            x="0"
+            y="0"
+            width="100%"
+            height="100%"
+            :href="displacementDataUri"
+            result="map"
           />
           <feDisplacementMap
-            ref="feDisplacementMapRef"
+            id="redchannel"
             in="SourceGraphic"
-            :in2="`${filterId}_map`"
-            xChannelSelector="R"
-            yChannelSelector="G"
+            in2="map"
+            :xChannelSelector="xChannel"
+            :yChannelSelector="yChannel"
+            :scale="scale + rOffset"
+            result="dispRed"
           />
+          <feColorMatrix
+            in="dispRed"
+            type="matrix"
+            values="1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0"
+            result="red"
+          />
+          <feDisplacementMap
+            id="greenchannel"
+            in="SourceGraphic"
+            in2="map"
+            :xChannelSelector="xChannel"
+            :yChannelSelector="yChannel"
+            :scale="scale + gOffset"
+            result="dispGreen"
+          />
+          <feColorMatrix
+            in="dispGreen"
+            type="matrix"
+            values="0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 1 0"
+            result="green"
+          />
+          <feDisplacementMap
+            id="bluechannel"
+            in="SourceGraphic"
+            in2="map"
+            :xChannelSelector="xChannel"
+            :yChannelSelector="yChannel"
+            :scale="scale + bOffset"
+            result="dispBlue"
+          />
+          <feColorMatrix
+            in="dispBlue"
+            type="matrix"
+            values="0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 1 0"
+            result="blue"
+          />
+          <feBlend in="red" in2="green" mode="screen" result="rg" />
+          <feBlend in="rg" in2="blue" mode="screen" result="output" />
+          <feGaussianBlur :stdDeviation="displace" />
         </filter>
       </defs>
     </svg>
-
-    <!-- 隐藏的canvas用于生成位移贴图 -->
-    <canvas ref="canvasRef" class="hidden" :width="width" :height="height" />
-
-    <!-- liquid glass container -->
-    <div
-      :class="cn(' size-full rounded-2xl border', props.class)"
-      :style="{
-        // width: `${width}px`,
-        // height: `${height}px`,
-        // boxShadow: `
-        //   0 4px 8px rgba(0, 0, 0, 0.25),
-        //   0 -10px 10 inset rgba(0, 0, 0, 0.15),
-        //   0 -1px 4px 1px inset rgba(255, 255, 255, 0.74)
-        // `,
-        backdropFilter: `url(#${filterId}) blur(2px) brightness(1.5) saturate(1.1)`,
-      }"
-    >
-      <slot />
-    </div>
   </div>
 </template>
+
+<style scoped>
+.effect {
+  display: block;
+  opacity: 1;
+  border-radius: inherit;
+  backdrop-filter: url(#displacementFilter);
+  background: light-dark(
+    hsl(0 0% 100% / var(--frost, 0)),
+    hsl(0 0% 0% / var(--frost, 0))
+  );
+  box-shadow:
+    0 0 2px 1px
+      light-dark(
+        color-mix(in oklch, canvasText, #0000 85%),
+        color-mix(in oklch, canvasText, #0000 90%)
+      )
+      inset,
+    0 0 10px 4px
+      light-dark(
+        color-mix(in oklch, canvasText, #0000 90%),
+        color-mix(in oklch, canvasText, #0000 95%)
+      )
+      inset,
+    0px 4px 16px rgba(17, 17, 26, 0.05),
+    0px 8px 24px rgba(17, 17, 26, 0.05),
+    0px 16px 56px rgba(17, 17, 26, 0.05),
+    /* 0px 4px 16px rgba(17, 17, 26, 0.05) inset, */
+    0px 8px 2px rgba(17, 17, 26, 0.01) inset;
+}
+
+.slot-container {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: inherit;
+}
+
+.filter {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+</style>
