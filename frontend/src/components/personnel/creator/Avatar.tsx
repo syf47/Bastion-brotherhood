@@ -17,7 +17,6 @@ const Avatar = defineComponent(() => {
 
   async function handleUpload(event: Event) {
     const file = (event.target as HTMLInputElement).files?.[0]
-    console.log('', file);
 
     if (!file) return
 
@@ -25,6 +24,7 @@ const Avatar = defineComponent(() => {
       toast.error('只能选择图片')
       return
     }
+
     if (file.size > 2 * 1024 * 1024) {
       toast.error('图片大小不能超过2MB')
       return
@@ -81,7 +81,7 @@ const Avatar = defineComponent(() => {
             <Camera
               class={cn(
                 'size-12',
-                avatarUrl ? 'opacity-0' : 'opacity-100',
+                avatarUrl.value ? 'opacity-0' : 'opacity-100',
                 'group-hover:!opacity-100',
               )}
             />
