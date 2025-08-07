@@ -39,9 +39,10 @@ const Avatar = defineComponent(() => {
 
     try {
       setUploading(true)
-      const { avatar_url } = await updateAvatar(id, file)
-      setAvatarUrl(avatar_url)
-      personnelStore.updatePersonLocal(id, { avatar: avatar_url })
+      await updateAvatar(id, file)
+      const url = URL.createObjectURL(file)
+      setAvatarUrl(url)
+      personnelStore.updatePersonLocal(id, { avatar: url })
     } catch {
       toast.error('上传失败', {
         description: '请稍后重试',
