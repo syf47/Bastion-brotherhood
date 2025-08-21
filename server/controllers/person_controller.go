@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"bastion-brotherhood/middleware/minioStore"
 	"bytes"
 	"encoding/base64"
 	"image"
@@ -14,7 +15,6 @@ import (
 
 	"bastion-brotherhood/database"
 	"bastion-brotherhood/log"
-	"bastion-brotherhood/middleware/minioStore"
 	"bastion-brotherhood/models"
 
 	"github.com/gin-gonic/gin"
@@ -322,7 +322,7 @@ func UploadPersonAvatar(c *gin.Context) {
 	}
 	defer src.Close()
 
-	// 读取文件内容到内存，以便同时上传到MinIO和存储到数据库
+	//// 读取文件内容到内存，以便同时上传到MinIO和存储到数据库
 	fileBytes, err := io.ReadAll(src)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{

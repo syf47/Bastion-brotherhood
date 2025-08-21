@@ -14,6 +14,7 @@ type GlobalConfig struct {
 	*LogConfig    `mapstructure:"log"`
 	*MechineConfig `mapstructure:"machine"`
 	*DbConfig     `mapstructure:"mysql"`
+	*JWTConfig    `mapstructure:"jwt"`
 }
 
 type DbConfig struct {
@@ -49,6 +50,11 @@ type MinioConfig struct {
 	AvatarBuckets   string `mapstructure:"avatar_buckets"`
 	// LogFile   string `mapstructure:"logfile"`
 	PicPath string `mapstructure:"pic_path"`
+}
+
+type JWTConfig struct {
+	SecretKey string `mapstructure:"secret_key"`
+	ExpireHours int `mapstructure:"expire_hours"`
 }
 
 func Init() (err error) {

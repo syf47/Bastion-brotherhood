@@ -21,6 +21,10 @@ func main() {
 
 	// 初始化数据库
 	database.InitDB()
+	
+	// 初始化默认用户
+	database.InitAdminUser()
+	database.InitDefaultUsers()
 
 	// 设置路由
 	r := routes.SetupRoutes()

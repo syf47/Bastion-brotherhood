@@ -23,3 +23,7 @@ mysql:
   max_idle_conn: 10
   max_open_conn: 100
   max_idle_time: 30
+
+jwt:
+  secret_key: "your-super-secret-jwt-key-change-in-production"
+  expire_hours: 24

@@ -2,6 +2,7 @@ package routes
 
 import (
 	"bastion-brotherhood/controllers"
+	"bastion-brotherhood/middleware"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -20,8 +21,25 @@ func SetupRoutes() *gin.Engine {
 	// API路由组
 	api := r.Group("/api")
 	{
-		// 用户相关路由
+		// 用户认证相关路由（无需登录）
+		auth := api.Group("/auth")
+		{
+			auth.POST("/register", controllers.Register) // 用户注册
+			auth.POST("/login", controllers.Login)       // 用户登录
+		}
+
+		// 用户相关路由（需要登录）
+		users := api.Group("/users")
+		users.Use(middleware.AuthMiddleware()) // 添加JWT认证中间件
+		{
+			users.GET("/profile", controllers.GetProfile)           // 获取当前用户信息
+			users.PUT("/profile", controllers.UpdateProfile)       // 更新当前用户信息
+			users.PUT("/password", controllers.ChangePassword)     // 修改密码
+		}
+
+		// 用户管理相关路由（需要登录）
 		persons := api.Group("/persons")
+		persons.Use(middleware.AuthMiddleware()) // 添加JWT认证中间件
 		{
 			persons.GET("", controllers.GetPersons)                     // 获取用户列表
 			persons.GET("/:id", controllers.GetPerson)                  // 获取单个用户

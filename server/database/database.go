@@ -70,7 +70,7 @@ func initMySQL(dbConfig *config.DbConfig) error {
 	sqlDB.SetConnMaxIdleTime(time.Duration(dbConfig.MaxIdleTime) * time.Second)
 
 	// 自动迁移数据库表结构
-	err = DB.AutoMigrate(&models.Person{})
+	err = DB.AutoMigrate(&models.Person{}, &models.User{})
 	if err != nil {
 		return fmt.Errorf("failed to migrate MySQL database: %v", err)
 	}
@@ -99,7 +99,7 @@ func initSQLite() error {
 	}
 
 	// 自动迁移数据库表结构
-	err = DB.AutoMigrate(&models.Person{})
+	err = DB.AutoMigrate(&models.Person{}, &models.User{})
 	if err != nil {
 		return fmt.Errorf("failed to migrate SQLite database: %v", err)
 	}
