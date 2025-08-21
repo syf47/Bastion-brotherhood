@@ -2,7 +2,6 @@ import { defineStore } from 'pinia'
 import type { PersonCreator, Person } from '@type/personnel'
 import { fetchPersons, insertPerson, removePerson } from '@/api/personnel'
 import { filterPersons } from './personal.helper'
-import { pswDict_S, pswDict_O } from '@/utils/calcTodayPsw'
 
 export const usePersonnelStore = defineStore('personnel', {
   state: () => ({
@@ -13,11 +12,14 @@ export const usePersonnelStore = defineStore('personnel', {
     loading: false,
     error: false,
 
-    filteredPersons: [] as Person[],
+    query: '',
   }),
 
   getters: {
     personsCount: (state) => state.persons.length,
+    filteredPersons: (state) => filterPersons(state.persons, state.query),
+    firstPerson: (state) => state.persons[0],
+    lastPerson: (state) => state.persons[state.persons.length - 1],
   },
 
   actions: {
@@ -26,10 +28,6 @@ export const usePersonnelStore = defineStore('personnel', {
         this.loading = true
         const ps = await fetchPersons()
         this.persons = ps
-        const names = ps.map(p => p.name)
-        pswDict_S.push(...names)
-        pswDict_O.push(...names)
-        this.filteredPersons = ps
         this.fulfilled = true
       } catch (error) {
         this.error = true
@@ -41,16 +39,18 @@ export const usePersonnelStore = defineStore('personnel', {
 
     async createPerson(data: PersonCreator) {
       const person = await insertPerson(data)
-      // 添加之后修改现有数据，避免额外请求
-      // 👆这个叫乐观更新，我们李陈哥哥真是个乐观的人啊
       this.persons.push(person)
-      this.filteredPersons.push(person)
     },
 
     async removePerson(id: number) {
       await removePerson(id)
       this.persons = this.persons.filter((p) => p.id !== id)
-      this.filteredPersons = this.filteredPersons.filter((p) => p.id !== id)
+    },
+
+    updatePersonLocal(id: number, person: Partial<Person>) {
+      this.persons = this.persons.map((p) =>
+        p.id === id ? { ...p, ...person } : p,
+      )
     },
 
     setActivePerson(person: Person | null) {
@@ -61,8 +61,8 @@ export const usePersonnelStore = defineStore('personnel', {
       this.setActivePerson(null)
     },
 
-    filterPersons(query: string) {
-      this.filteredPersons = filterPersons(this.persons, query)
+    setQuery(query: string) {
+      this.query = query
     },
   },
 })

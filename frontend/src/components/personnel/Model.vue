@@ -7,6 +7,7 @@ import { useImageColors } from '@/hooks/useImageColor'
 import { PersonInfoExtra } from '@/components/personnel'
 import { Button } from '@/components/ui/button'
 import { Trash2Icon } from 'lucide-vue-next'
+import { PersonDialog } from '@/components/personnel'
 
 const props = defineProps<{
   person: Person | null
@@ -88,9 +89,11 @@ const removePerson = () => {
                 <div class="flex items-center gap-2 absolute -bottom-10 left-4">
                   <motion.div :layout-id="`person-avatar-${person.id}`">
                     <PersonAvatar
+                      :user-id="person.id"
                       :name="person.name"
                       :url="person.avatar"
                       class="size-20"
+                      editable
                     />
                   </motion.div>
                   <div class="h-16 flex flex-col justify-between">
@@ -109,19 +112,21 @@ const removePerson = () => {
                   </div>
                 </div>
               </div>
+              <div class="flex justify-end p-4 pb-0">
+                <PersonDialog @click:outside="removePerson">
+                  <Button variant="outline" size="icon">
+                    <Trash2Icon class="size-4" />
+                  </Button>
+                </PersonDialog>
+              </div>
               <PersonInfoExtra
-                class="mt-10 p-4"
+                class="p-4"
                 :phone="person.phone"
                 :wechat="person.wechat"
                 :email="person.email"
                 :position="person.position"
                 :region="person.region"
               />
-              <div class="flex justify-end p-4">
-                <Button variant="outline" @click="removePerson">
-                  <Trash2Icon class="size-4" />
-                </Button>
-              </div>
             </div>
           </motion.div>
         </motion.div>

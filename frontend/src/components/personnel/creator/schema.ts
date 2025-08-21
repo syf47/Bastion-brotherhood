@@ -16,6 +16,9 @@ const extra = z.object({
 const creatorSchema = [toTypedSchema(namer), toTypedSchema(extra)]
 
 const getCreatorSchema = (index: number) => {
+  if (index >= creatorSchema.length) {
+    index = creatorSchema.length - 1
+  }
   return creatorSchema[index]
 }
 

@@ -19,3 +19,12 @@ export function removePerson(id: number) {
     url: `/api/persons/${id}`,
   })
 }
+
+export function updateAvatar(id: number, avatar: File) {
+  const fm = new FormData()
+  fm.append('avatar', avatar)
+  return post<{ avatar_url: string }>({
+    url: `/api/persons/${id}/avatar`,
+    data: fm,
+  })
+}

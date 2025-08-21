@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import type { App } from 'vue'
-
+import { haveToken } from '@/utils/token'
 import Layout from '@/layout/index.vue'
 
 const router = createRouter({
@@ -25,6 +25,20 @@ const router = createRouter({
       ],
     },
   ],
+})
+
+router.beforeEach((to, from, next) => {
+  const isLogin = haveToken()
+
+  if (isLogin && to.path === '/login') {
+    return next(from.path)
+  }
+
+  if (!isLogin && to.path !== '/login') {
+    return next('/login')
+  }
+
+  next()
 })
 
 export async function setupRouter(app: App) {
