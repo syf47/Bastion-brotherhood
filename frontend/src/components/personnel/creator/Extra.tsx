@@ -21,6 +21,8 @@ const Extra = defineComponent(() => {
               <FormControl>
                 <Input
                   class="w-full"
+                  // @ts-ignore
+                  placeholder="请输入手机号"
                   modelValue={value}
                   onUpdate:modelValue={handleChange}
                 />
@@ -39,6 +41,8 @@ const Extra = defineComponent(() => {
               <FormControl>
                 <Input
                   class="w-full"
+                  // @ts-ignore
+                  placeholder="请输入微信号"
                   modelValue={value}
                   onUpdate:modelValue={handleChange}
                 />
@@ -57,6 +61,8 @@ const Extra = defineComponent(() => {
               <FormControl>
                 <Input
                   class="w-full"
+                  // @ts-ignore
+                  placeholder="请输入邮箱"
                   modelValue={value}
                   onUpdate:modelValue={handleChange}
                 />

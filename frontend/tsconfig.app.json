@@ -8,7 +8,10 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],
-      "@type/*": ["./src/types/*"]
+      "@type/*": ["./src/types/*"],
+      "@utils/*": ["./src/utils/*"],
+      "@ui/*": ["./src/components/ui/*"],
+      "@store": ["./src/store/index.ts"]
     }
   }
 }
