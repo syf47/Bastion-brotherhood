@@ -1,19 +1,20 @@
 <script setup lang="ts">
 import { type HTMLAttributes } from 'vue'
 import { cn } from '@/lib/utils'
-import { LiquidGlass } from '@/components/ui/liquid-glass'
-import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
+import { LiquidGlass } from '@ui/liquid-glass'
+import { Input } from '@ui/input'
+import { Button } from '@ui/button'
 import { Motion } from 'motion-v'
-import { usePersonnelStore } from '@/store/modules/personnel'
+import { usePersonnelStore } from '@store'
 import { ref, onMounted } from 'vue'
 import { debounce } from '@/utils/debounce'
-import { ThemeSwitcher } from '@/components/ui/theme-switcher'
+import { ThemeSwitcher } from '@ui/theme-switcher'
 import { PersonCreator } from '@/components/personnel'
 import { LogOut, Music } from 'lucide-vue-next'
 import { removeToken } from '@/utils/token'
 import { useRouter } from 'vue-router'
 import { showAlert } from '@/components/hooks'
+import { __DEV__ } from '@/utils/env'
 
 const router = useRouter()
 
@@ -103,6 +104,7 @@ onMounted(() => {
   initMusic()
 
   const handleFirstInteraction = () => {
+    if (__DEV__) return
     if (audioElement.value && audioElement.value.paused) {
       startMusic()
     }
@@ -119,36 +121,50 @@ onMounted(() => {
 
 <template>
   <Motion
-    :class="cn('z-10', props.class)"
-    :initial="{ opacity: 0, y: -100 }"
+    :class="cn('z-10 flex items-center justify-center', props.class)"
+    :initial="{ opacity: 0, y: 100 }"
     :animate="{ opacity: 1, y: 0 }"
     :transition="{
       type: 'spring',
       delay: 0.8,
     }"
   >
-    <LiquidGlass container-class="w-full h-16 shadow-lg bg-background/10">
+    <LiquidGlass
+      container-class="w-fit h-16 shadow-lg"
+      :radius="32"
+      class="bg-background/10"
+    >
       <div class="flex px-4 justify-between items-center size-full">
-        <Motion as="h2">欢迎来到不朽堡垒</Motion>
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-1">
           <Input
-            class="w-32 md:w-64"
+            class="w-32 md:w-64 rounded-full"
             placeholder="搜索兄弟"
             v-model:model-value="filter"
             @update:model-value="(value) => handleFilter(value as string)"
           />
           <PersonCreator />
           <Button
-            size="icon"
-            variant="ghost"
+            size="icon-lg"
             @click="showMusicControl"
-            :class="isPlaying ? 'text-green-500' : 'text-gray-400'"
+            variant="ghost"
+            :class="
+              cn(
+                'rounded-full',
+                'text-green-500',
+                isPlaying ? 'text-green-500' : 'text-gray-400',
+              )
+            "
           >
-            <Music class="size-4" />
+            <Music class="size-5" />
           </Button>
-          <ThemeSwitcher class="size-4" />
-          <Button size="icon" variant="ghost" @click="logout">
-            <LogOut class="size-4" />
+          <ThemeSwitcher container-class="rounded-full" class="size-5" />
+          <Button
+            size="icon-lg"
+            class="rounded-full"
+            variant="destructive-ghost"
+            @click="logout"
+          >
+            <LogOut class="size-5" />
           </Button>
         </div>
       </div>

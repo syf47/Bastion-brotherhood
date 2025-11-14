@@ -21,6 +21,8 @@ const Namer = defineComponent(() => {
               <FormControl>
                 <Input
                   class="w-full"
+                  // @ts-ignore
+                  placeholder="请输入姓名"
                   modelValue={value}
                   onUpdate:modelValue={handleChange}
                 />
@@ -41,6 +43,8 @@ const Namer = defineComponent(() => {
               <FormControl>
                 <Input
                   class="w-full"
+                  // @ts-ignore
+                  placeholder="请输入真实姓名"
                   modelValue={value}
                   onUpdate:modelValue={handleChange}
                 />

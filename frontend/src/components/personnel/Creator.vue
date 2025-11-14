@@ -11,7 +11,7 @@ import { computed, onMounted, useTemplateRef, ref } from 'vue'
 import { fadeMotion } from '@/motions/fade'
 import { DotGroup } from '@/components/ui/dot-group'
 import { Plus } from 'lucide-vue-next'
-import { usePersonnelStore } from '@/store'
+import { usePersonnelStore } from '@store'
 import type { PersonCreator } from '@type/personnel'
 import { sideCannons } from '@/utils/confetti'
 import { toast } from 'vue-sonner'
@@ -80,11 +80,15 @@ onMounted(async () => {
   >
     <AnimatePresence>
       <Motion layout-id="person-creator">
-        <Button variant="outline" @click="handleClick" class="z-50">
+        <Button
+          size="icon-lg"
+          variant="ghost"
+          @click="handleClick"
+          class="z-50 rounded-full"
+        >
           <Motion layout-id="person-creator-icon">
-            <UserRoundPlus class="size-4" />
+            <UserRoundPlus class="size-5" />
           </Motion>
-          <Motion as="span" layout-id="person-creator-title">添加兄弟</Motion>
         </Button>
       </Motion>
 
