@@ -22,7 +22,19 @@ const props = defineProps<{
     <div class="flex flex-col gap-1">
       <h3 class="text-lg font-bold">{{ person?.name }}</h3>
       <RoleBadgeGroup
-        :role="['creator', 'admin', 'developer', 'designer', 'beta']"
+        :role="[
+          'creator',
+          'admin',
+          'developer',
+          'designer',
+          'beta',
+          'gay',
+          'shopping-bag',
+          '0',
+          '1',
+          'orange',
+          'dog',
+        ]"
       />
     </div>
   </div>

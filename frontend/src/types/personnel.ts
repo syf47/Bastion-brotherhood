@@ -6,6 +6,13 @@ type RoleBadge =
   | 'designer'
   | 'creator'
   | 'beta'
+  | 'gay'
+  | '0'
+  | '1'
+  | 'shopping-bag'
+  | 'orange'
+  | 'angry'
+  | 'dog'
 
 interface BasePerson {
   id: number

@@ -13,7 +13,7 @@ const roles = computed(() => {
 </script>
 
 <template>
-  <div class="flex items-center gap-1">
+  <div class="flex items-center gap-1 flex-wrap">
     <RoleBadge v-for="role in roles" :key="role" :role="role" />
   </div>
 </template>
