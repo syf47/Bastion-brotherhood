@@ -1,9 +1,12 @@
-import { get, post, remove } from '@/network'
+import { get, post, remove, type HttpOptions } from '@/network'
 import type { Person, PersonCreator } from '@type/personnel'
 
-export function fetchPersons() {
+export function fetchPersons({
+  onDownloadProgress,
+}: { onDownloadProgress?: HttpOptions['onDownloadProgress'] } = {}) {
   return get<Person[]>({
     url: '/api/persons',
+    onDownloadProgress,
   })
 }
 

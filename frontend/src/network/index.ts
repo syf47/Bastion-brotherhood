@@ -8,7 +8,7 @@ export interface Response<T> {
   code: 200 | 500
 }
 
-interface HttpOptions extends AxiosRequestConfig {
+export interface HttpOptions extends AxiosRequestConfig {
   url: string
   skipStandardTransform?: boolean
   beforeRequest?: () => void

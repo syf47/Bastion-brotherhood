@@ -1,29 +1,31 @@
 import { defineComponent } from 'vue'
-import { BlurInText } from '@/components/ui/blur-in-text'
+import { LogoWithProgress } from '@/components/ui/logo'
 
-type Emits = {
-  'animation:end': () => void
+interface Props {
+  progress?: number
 }
 
-export const Welcome = defineComponent<{}, Emits>(
-  (_, { emit }) => {
-    const animationEnd = () => {
-      emit('animation:end')
+type Emits = {
+  'progress:complete': () => void
+}
+
+export const Welcome = defineComponent<Props, Emits>(
+  (props, { emit }) => {
+    const progressComplete = () => {
+      emit('progress:complete')
     }
 
     return () => (
-      <div class="size-full flex items-center justify-center p-4">
-        <h2 class="text-3xl md:text-7xl font-bold">
-          <BlurInText
-            words="欢迎来到不朽堡垒"
-            mode="pre"
-            onAnimation:end={animationEnd}
-          />
-        </h2>
+      <div class="size-full flex flex-col items-center justify-center p-4">
+        <LogoWithProgress
+          progress={props.progress}
+          onProgress:complete={progressComplete}
+        />
+        <p class="text-sm text-muted-foreground -translate-y-2">正在加载中</p>
       </div>
     )
   },
   {
-    emits: ['animation:end'],
+    emits: ['progress:complete'],
   },
 )
