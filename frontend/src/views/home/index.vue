@@ -8,6 +8,7 @@ import { useTimeoutFn } from '@vueuse/core'
 const personnelStore = usePersonnelStore()
 
 const isCeremonyEnd = ref(false)
+const progress = ref(0)
 
 const fulfilled = computed(() => personnelStore.fulfilled)
 
@@ -16,10 +17,18 @@ const { start } = useTimeoutFn(() => {
   isCeremonyEnd.value = true
 }, 500)
 
+function fetchPersons() {
+  personnelStore
+    .fetchPersons({
+      onDownloadProgress: ({ event }) => {
+        progress.value = ((event.loaded ?? 0) / (event.total ?? 0)) * 100
+      },
+    })
+    .then(() => start())
+}
+
 onMounted(() => {
-  personnelStore.fetchPersons().then(() => {
-    start()
-  })
+  fetchPersons()
 })
 </script>
 
@@ -32,7 +41,7 @@ onMounted(() => {
       :exit="{ opacity: 0 }"
       as-child
     >
-      <Welcome @animation:end="start" />
+      <Welcome :progress="progress" />
     </Motion>
     <Main v-else />
   </AnimatePresence>
