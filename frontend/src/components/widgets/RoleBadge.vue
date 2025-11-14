@@ -17,6 +17,10 @@ const props = defineProps<{
 const badge = computed(() =>
   badgeGroupConfig.find((item) => item.role === props.role),
 )
+
+const tip = computed(
+  () => badge.value?.tip || `这个用户是一个 ${badge.value?.label}`,
+)
 </script>
 
 <template>
@@ -31,12 +35,12 @@ const badge = computed(() =>
             )
           "
         >
-          <component :is="badge?.icon" class="size-3 mr-1" />
+          <component :is="badge?.icon" class="size-3 mr-1 flex justify-center items-center" />
           <span class="text-xs">{{ badge?.label }}</span>
         </div>
       </TooltipTrigger>
       <TooltipContent>
-        <p>这个用户是一个 {{ badge?.label }}</p>
+        <p>{{ tip }}</p>
       </TooltipContent>
     </Tooltip>
   </TooltipProvider>
