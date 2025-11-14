@@ -21,11 +21,12 @@ export const Welcome = defineComponent<Props, Emits>(
           progress={props.progress}
           onProgress:complete={progressComplete}
         />
-        <p class="text-sm text-muted-foreground -translate-y-2">正在加载中</p>
+        <p class="text-sm text-muted-foreground -translate-y-2">正在组装堡垒</p>
       </div>
     )
   },
   {
+    props: ['progress'],
     emits: ['progress:complete'],
   },
 )
