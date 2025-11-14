@@ -4,11 +4,18 @@ import { Welcome, Main } from './components'
 import { Motion, AnimatePresence } from 'motion-v'
 import { usePersonnelStore } from '@/store'
 import { useTimeoutFn } from '@vueuse/core'
+import { useFakeProgress } from '@/hooks/useFakeProgress'
 
 const personnelStore = usePersonnelStore()
+const {
+  transitionValue,
+  start: startProgress,
+  finish: finishProgress,
+} = useFakeProgress({
+  step: 10,
+})
 
 const isCeremonyEnd = ref(false)
-const progress = ref(0)
 
 const fulfilled = computed(() => personnelStore.fulfilled)
 
@@ -18,13 +25,11 @@ const { start } = useTimeoutFn(() => {
 }, 500)
 
 function fetchPersons() {
-  personnelStore
-    .fetchPersons({
-      onDownloadProgress: ({ event }) => {
-        progress.value = ((event.loaded ?? 0) / (event.total ?? 0)) * 100
-      },
-    })
-    .then(() => start())
+  startProgress()
+  personnelStore.fetchPersons().then(() => {
+    start()
+    finishProgress()
+  })
 }
 
 onMounted(() => {
@@ -41,7 +46,7 @@ onMounted(() => {
       :exit="{ opacity: 0 }"
       as-child
     >
-      <Welcome :progress="progress" />
+      <Welcome :progress="transitionValue" />
     </Motion>
     <Main v-else />
   </AnimatePresence>
