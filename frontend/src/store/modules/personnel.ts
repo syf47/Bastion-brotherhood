@@ -2,7 +2,6 @@ import { defineStore } from 'pinia'
 import type { PersonCreator, Person } from '@type/personnel'
 import { fetchPersons, insertPerson, removePerson } from '@/api/personnel'
 import { filterPersons } from './personal.helper'
-import type { HttpOptions } from '@/network'
 
 export const usePersonnelStore = defineStore('personnel', {
   state: () => ({
@@ -24,12 +23,10 @@ export const usePersonnelStore = defineStore('personnel', {
   },
 
   actions: {
-    async fetchPersons({
-      onDownloadProgress,
-    }: { onDownloadProgress?: HttpOptions['onDownloadProgress'] } = {}) {
+    async fetchPersons() {
       try {
         this.loading = true
-        const ps = await fetchPersons({ onDownloadProgress })
+        const ps = await fetchPersons()
         this.persons = ps
         this.fulfilled = true
       } catch (error) {
@@ -38,6 +35,11 @@ export const usePersonnelStore = defineStore('personnel', {
       } finally {
         this.loading = false
       }
+    },
+
+    async tryFetchPersons() {
+      if (this.fulfilled) return
+      await this.fetchPersons()
     },
 
     async createPerson(data: PersonCreator) {

@@ -1,5 +1,12 @@
 import type { MakeRequired } from '@/utils/types'
 
+type RoleBadge =
+  | 'admin'
+  | 'developer'
+  | 'designer'
+  | 'creator'
+  | 'beta'
+
 interface BasePerson {
   id: number
   name: string
@@ -19,4 +26,4 @@ interface Person extends BasePerson {
   updated_at: string
 }
 
-export type { Person, BasePerson, PersonCreator }
+export type { Person, BasePerson, PersonCreator, RoleBadge }
