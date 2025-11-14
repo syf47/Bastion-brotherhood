@@ -10,11 +10,12 @@ import { ref, onMounted } from 'vue'
 import { debounce } from '@/utils/debounce'
 import { ThemeSwitcher } from '@ui/theme-switcher'
 import { PersonCreator } from '@/components/personnel'
-import { LogOut, Music, Aperture } from 'lucide-vue-next'
+import { LogOut, Music, Aperture, UsersRound } from 'lucide-vue-next'
 import { removeToken } from '@/utils/token'
 import { useRouter, useRoute } from 'vue-router'
 import { showAlert } from '@/components/hooks'
 import { __DEV__ } from '@/utils/env'
+import { Separator } from '@ui/separator'
 
 const router = useRouter()
 const route = useRoute()
@@ -138,6 +139,7 @@ onMounted(() => {
       <div class="flex px-4 justify-between items-center size-full">
         <div class="flex items-center gap-1">
           <Input
+            v-if="false"
             class="w-32 md:w-64 rounded-full"
             placeholder="搜索兄弟"
             v-model:model-value="filter"
@@ -146,16 +148,25 @@ onMounted(() => {
           <Button
             size="icon-lg"
             class="rounded-full relative"
+            :variant="route.name === 'Home' ? 'default' : 'ghost'"
+            @click="router.push('/')"
+          >
+            <UsersRound class="size-5" />
+          </Button>
+          <Button
+            size="icon-lg"
+            class="rounded-full relative"
             :variant="route.name === 'Posts' ? 'default' : 'ghost'"
             @click="router.push('/posts')"
           >
             <Aperture class="size-5" />
             <div
-              class="absolute top-0 -right-1 p-px px-1 text-[8px] text-primary-foreground bg-primary rounded-full"
+              class="absolute top-0 -right-1 p-px px-1 text-[8px] text-primary-foreground bg-green-500 rounded-full"
             >
               WIP
             </div>
           </Button>
+          <Separator orientation="vertical" class="h-5 mx-2" />
           <PersonCreator />
           <Button
             size="icon-lg"
